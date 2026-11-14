@@ -1176,7 +1176,7 @@ function newsPlan(text, defCity){
 const PAPER_DAYS={"גלובס":"12345","כלכליסט":"01234"};
 function paperDayOk(p,wd){ const k=Object.keys(PAPER_DAYS).find(n=>norm(n)===norm(p||"")); return !k || PAPER_DAYS[k].includes(String(wd)); }
 function newsToday(){
-  const d=new Date(), wd=d.getDay(), iso=dayKey(d);
+  const d=new Date(), wd=(CFG.demo&&d.getDay()===6)?5:d.getDay(), iso=dayKey(d);
   if(wd===6) return [];
   const x=newsExtraGet();
   return N.list.filter(s=>(s.grp ? grpOn(s.grp,x) : (!s.days||s.days.includes(String(wd)))) && paperDayOk(s.paper,wd) && !(s.pausedUntil && iso<=s.pausedUntil));
@@ -1227,7 +1227,7 @@ const faLabel = c => [c.floor!==""&&c.floor!=null?"ק׳ "+c.floor:"", c.apt?"ד�
 function noteChips(notes){ return notes.map(n=>`<span class="chip ${noteCls(n)}">${esc(n)}</span>`).join(""); }
 function viewNews(){
   if(!N.list.length) return `<div class="empty"><h2>עדיין אין רשימת עיתונים</h2><p>הדבק את הרשימה המלאה פעם אחת. אחר כך מדביקים רק עדכונים, והרשימה נשארת.</p><button class="btn primary" data-act="newsUpdate">הדבק רשימה מלאה</button></div>`;
-  const d=new Date(), wd=d.getDay();
+  const d=new Date(), wd=(CFG.demo&&d.getDay()===6)?5:d.getDay();
   const dayName=["ראשון","שני","שלישי","רביעי","חמישי","שישי","שבת"][wd];
   const menu=`<details class="news-menu"><summary>אפשרויות</summary><div class="btn-row">
       <button class="btn small" data-act="newsUpdate">עדכון רשימה</button>
