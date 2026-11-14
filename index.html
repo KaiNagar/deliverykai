@@ -1,0 +1,2611 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#15202A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="DeliveryKai">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-192.png">
+<style>:root{padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}body{margin:0;font:14px system-ui,-apple-system,"Segoe UI",sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>DeliveryKai</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700;800&family=IBM+Plex+Mono:wght@500;600&family=Secular+One&display=swap">
+<style>
+/* Layout: one-screen field tool — sticky search header, scrolling list, fixed bottom bar; address card opens as a full-height sheet. Built for one thumb, sunlight and night. */
+:root{
+  --bg:#EEF0EC; --surface:#FFFFFF; --ink:#15202A; --muted:#5B6770; --line:#D5DAD4;
+  --accent:#D88A00; --accent-ink:#1C1300; --accent-soft:#FBEBC8;
+  --code-bg:#15202A; --code-fg:#FFD166;
+  --ok:#1E7A4C; --ok-soft:#DDF1E6; --no:#B42318; --no-soft:#FBE3E0; --ask:#7A6200; --ask-soft:#F4ECCB;
+  --f-display:"Secular One","Assistant",system-ui,sans-serif;
+  --f-body:"Assistant",system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+  --f-code:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  --nav-h:64px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0E151B; --surface:#16202A; --ink:#E7ECEE; --muted:#93A0A9; --line:#26333E;
+  --accent:#F0AE38; --accent-ink:#1C1300; --accent-soft:#3A2B0E;
+  --code-bg:#090F14; --code-fg:#FFD166;
+  --ok:#53C892; --ok-soft:#123326; --no:#FF7B70; --no-soft:#3A1715; --ask:#E6C454; --ask-soft:#332B0C;
+  color-scheme:dark;}}
+:root[data-theme="dark"]{
+  --bg:#0E151B; --surface:#16202A; --ink:#E7ECEE; --muted:#93A0A9; --line:#26333E;
+  --accent:#F0AE38; --accent-ink:#1C1300; --accent-soft:#3A2B0E;
+  --code-bg:#090F14; --code-fg:#FFD166;
+  --ok:#53C892; --ok-soft:#123326; --no:#FF7B70; --no-soft:#3A1715; --ask:#E6C454; --ask-soft:#332B0C;
+  color-scheme:dark;}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.45;direction:rtl;-webkit-tap-highlight-color:transparent}
+*{box-sizing:border-box}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.app{display:flex;flex-direction:column;min-height:100%;padding-bottom:calc(var(--nav-h) + env(safe-area-inset-bottom,0px) + 8px)}
+header.top{position:sticky;top:0;z-index:5;background:var(--bg);padding:calc(env(safe-area-inset-top,0px) + 14px) 16px 12px;display:grid;gap:10px;border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.tgls{display:flex;gap:6px;margin-inline-start:auto;margin-inline-end:8px}
+.tgl{width:38px;height:32px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);color:var(--muted);display:flex;align-items:center;justify-content:center;padding:0}
+.tgl[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.brand h1{margin:0;font-family:var(--f-display);font-size:1.45rem;font-weight:400;letter-spacing:.01em}
+.status{font-size:.8rem;color:var(--muted);display:flex;align-items:center;gap:6px;white-space:nowrap}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--muted)}
+.dot.cloud{background:var(--ok)} .dot.local{background:var(--accent)}
+.search{display:flex;align-items:center;gap:8px;background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:0 12px;min-height:50px}
+.search:focus-within{border-color:var(--accent)}
+.search input{flex:1;min-width:0;border:0;background:transparent;font-size:1.05rem;padding:12px 0;outline:none}
+.search svg{flex:none;color:var(--muted)}
+.clear{border:0;background:none;color:var(--muted);padding:6px;font-size:1.2rem;line-height:1}
+main{flex:1;padding:12px 16px;display:grid;gap:10px;align-content:start;max-width:720px;width:100%;margin:0 auto}
+.banner{background:var(--accent-soft);color:var(--ink);border-radius:12px;padding:12px 14px;font-size:.92rem;display:grid;gap:8px}
+.banner b{font-weight:700}
+.banner .row{display:flex;gap:8px;flex-wrap:wrap}
+.meta{font-size:.85rem;color:var(--muted)}
+.street-h{font-size:.78rem;letter-spacing:.06em;color:var(--muted);font-weight:700;margin:8px 2px 0}
+.item{display:grid;grid-template-columns:1fr auto;gap:4px 12px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;text-align:right;width:100%}
+.item:active{transform:scale(.995)}
+.item .addr{font-weight:700;font-size:1.08rem;min-width:0}
+.item .sub{grid-column:1/2;display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:.85rem;color:var(--muted);min-width:0}
+.item .codes-mini{grid-row:1/3;grid-column:2/3;font-family:var(--f-code);font-weight:600;background:var(--code-bg);color:var(--code-fg);border-radius:8px;padding:6px 10px;direction:ltr;font-size:1rem;font-variant-numeric:tabular-nums;max-width:9.5em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.item .codes-mini.none{background:transparent;color:var(--muted);border:1px dashed var(--line);font-family:var(--f-body);font-weight:400;font-size:.8rem;direction:rtl}
+.chip{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:2px 9px;font-size:.78rem;font-weight:700;line-height:1.5}
+.chip.yes{background:var(--ok-soft);color:var(--ok)} .chip.no{background:var(--no-soft);color:var(--no)} .chip.ask{background:var(--ask-soft);color:var(--ask)}
+.chip.demo{background:var(--accent-soft);color:var(--ink)}
+.dist{font-variant-numeric:tabular-nums;font-weight:700;color:var(--ink)}
+.empty{text-align:center;color:var(--muted);padding:32px 12px;display:grid;gap:12px;justify-items:center}
+.empty h2{margin:0;font-family:var(--f-display);font-weight:400;color:var(--ink);font-size:1.25rem}
+.btn{border:1.5px solid var(--line);background:var(--surface);border-radius:12px;padding:12px 16px;font-weight:700;min-height:48px;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.danger{color:var(--no);border-color:var(--no-soft)}
+.btn.danger.armed{background:var(--no);color:#fff;border-color:var(--no)}
+.btn.small{min-height:38px;padding:6px 12px;font-size:.9rem;border-radius:10px}
+.btn.block{width:100%}
+.btn:disabled{opacity:.5;cursor:default}
+nav.bottom{position:fixed;inset-inline:0;bottom:0;z-index:20;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px);display:grid;grid-template-columns:repeat(6,1fr)}
+nav.bottom button{border:0;background:none;height:var(--nav-h);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:.72rem;white-space:nowrap;font-weight:600;color:var(--muted);min-width:0}
+nav.bottom button[aria-current="page"]{color:var(--ink)}
+nav.bottom button[aria-current="page"] svg{color:var(--accent)}
+nav.bottom button.add svg{background:var(--accent);color:var(--accent-ink);border-radius:10px;padding:4px;width:32px;height:32px}
+/* sheet */
+.sheet{position:fixed;inset:0;z-index:30;background:var(--bg);overflow-y:auto;padding-top:env(safe-area-inset-top,0px);padding-bottom:calc(env(safe-area-inset-bottom,0px) + 24px)}
+.sheet-top{position:sticky;top:0;background:var(--bg);display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--line);z-index:2}
+.sheet-top h2{margin:0;font-family:var(--f-display);font-weight:400;font-size:1.3rem;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.icon-btn{border:0;background:var(--surface);border-radius:12px;width:46px;height:46px;display:grid;place-items:center;flex:none;border:1px solid var(--line)}
+.sheet-body{padding:14px 16px;display:grid;gap:16px;max-width:720px;margin:0 auto}
+.door{border-radius:14px;padding:14px 16px;font-weight:800;font-size:1.15rem;display:flex;align-items:center;gap:10px}
+.door.yes{background:var(--ok-soft);color:var(--ok)} .door.no{background:var(--no-soft);color:var(--no)} .door.ask{background:var(--ask-soft);color:var(--ask)}
+.door small{display:block;font-weight:600;font-size:.82rem;opacity:.85}
+.codes{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+.code{background:var(--code-bg);color:var(--code-fg);border:0;border-radius:14px;padding:12px 14px;text-align:right;display:grid;gap:2px}
+.code .lbl{font-size:.8rem;color:#C9D2D8;font-weight:600}
+.code .val{font-family:var(--f-code);font-weight:600;font-size:1.9rem;direction:ltr;text-align:right;letter-spacing:.06em;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.code .hint{font-size:.72rem;color:#8C99A2}
+.block{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:grid;gap:10px}
+.block h3{margin:0;font-size:.78rem;letter-spacing:.06em;color:var(--muted);font-weight:700}
+.phone{font-family:var(--f-code);direction:ltr;text-align:right;font-size:1.25rem;user-select:all;font-variant-numeric:tabular-nums}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap}
+.log-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.log-grid .btn{min-height:56px;font-size:.95rem}
+.hist{list-style:none;margin:0;padding:0;display:grid;gap:0}
+.hist li{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--line);font-size:.92rem}
+.hist li:last-child{border-bottom:0}
+.hist time{color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.notes{white-space:pre-wrap;overflow-wrap:anywhere}
+/* forms */
+.form{display:grid;gap:14px}
+.f-row{display:grid;grid-template-columns:2fr 1fr;gap:10px}
+.f-row3{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+label.f{display:grid;gap:5px;font-weight:700;font-size:.9rem;min-width:0}
+label.f span.opt{font-weight:400;color:var(--muted)}
+.inp{width:100%;min-width:0;border:1.5px solid var(--line);background:var(--surface);border-radius:10px;padding:11px 12px;font-size:1.05rem;min-height:48px}
+.inp:focus{border-color:var(--accent);outline:none}
+.inp.code-inp{font-family:var(--f-code);direction:ltr;text-align:right}
+textarea.inp{min-height:96px;resize:vertical}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.seg input{position:absolute;opacity:0;pointer-events:none}
+.seg label{border:1.5px solid var(--line);border-radius:10px;padding:10px 6px;text-align:center;font-weight:700;font-size:.88rem;background:var(--surface);cursor:pointer;min-height:48px;display:grid;place-items:center}
+.seg input:checked+label{border-color:var(--ink);background:var(--ink);color:var(--bg)}
+.seg input:focus-visible+label{outline:3px solid var(--accent);outline-offset:2px}
+.code-row{display:grid;grid-template-columns:7em 1fr 46px;gap:8px;align-items:center}
+.preview{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+.preview table{border-collapse:collapse;width:100%;min-width:480px;font-size:.88rem}
+.preview th,.preview td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:right;vertical-align:top}
+.preview th{font-size:.75rem;color:var(--muted);letter-spacing:.04em}
+.preview td.c{font-family:var(--f-code);direction:ltr;text-align:right;white-space:nowrap}
+.tag{font-size:.72rem;font-weight:700;border-radius:6px;padding:1px 6px}
+.tag.new{background:var(--ok-soft);color:var(--ok)} .tag.upd{background:var(--ask-soft);color:var(--ask)}
+.progress{height:10px;background:var(--line);border-radius:999px;overflow:hidden}
+.progress i{display:block;height:100%;background:var(--accent);width:0;transition:width .2s}
+.drive{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:12px 14px}
+.drive.on{border-color:var(--ok)}
+.drive b{display:block}
+.switch{width:58px;height:34px;border-radius:999px;border:0;background:var(--line);position:relative;flex:none}
+.switch::after{content:"";position:absolute;top:4px;right:4px;width:26px;height:26px;border-radius:50%;background:var(--surface);transition:right .18s}
+.switch[aria-checked="true"]{background:var(--ok)}
+.switch[aria-checked="true"]::after{right:28px}
+.scrollbtns{position:fixed;inset-inline-start:8px;bottom:calc(var(--nav-h) + env(safe-area-inset-bottom,0px) + 12px);z-index:25;display:flex;flex-direction:column;gap:8px}
+.scrollbtns button{width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--ink);opacity:.88;box-shadow:0 2px 8px rgba(0,0,0,.18);display:flex;align-items:center;justify-content:center;padding:0;cursor:pointer}
+.toast{position:fixed;inset-inline:16px;bottom:calc(var(--nav-h) + env(safe-area-inset-bottom,0px) + 14px);z-index:50;background:var(--ink);color:var(--bg);border-radius:12px;padding:12px 14px;font-weight:600;text-align:center;max-width:520px;margin:0 auto}
+.kbd{font-family:var(--f-code);direction:ltr;display:inline-block;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:0 6px;font-size:.85em}
+.help{font-size:.88rem;color:var(--muted);margin:0}
+.help pre{white-space:pre-wrap;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px;margin:6px 0 0;font-family:var(--f-body);color:var(--ink)}
+.res-summary{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.res-list{display:grid;gap:8px}
+.res{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.res.open{border-color:var(--ink);box-shadow:0 2px 0 var(--line)}
+.res-head{width:100%;border:0;background:none;text-align:right;padding:12px 14px;display:grid;grid-template-columns:auto 1fr auto;gap:2px 12px;align-items:center}
+.res-loc{font-family:var(--f-display);font-size:1.15rem;white-space:nowrap;font-variant-numeric:tabular-nums}
+.res-loc.none{font-family:var(--f-body);font-size:.85rem;color:var(--muted)}
+.res-name{font-weight:700;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.res-last{grid-column:1/-1;font-size:.82rem;color:var(--muted);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.res-body{border-top:1px solid var(--line);padding:12px 14px;display:grid;gap:12px}
+.res-note{background:var(--accent-soft);border-radius:10px;padding:10px 12px;white-space:pre-wrap;overflow-wrap:anywhere;font-weight:600}
+.hit{font-size:.85rem;color:var(--ink);font-weight:600}
+.sec-h{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.sec-h h3{margin:0;font-size:.78rem;letter-spacing:.06em;color:var(--muted);font-weight:700}
+.today-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
+.today-head h2{margin:0;font-family:var(--f-display);font-weight:400;font-size:1.35rem}
+.stats{display:flex;gap:14px;font-size:.85rem;color:var(--muted)}
+.stats b{font-size:1.25rem;color:var(--ink);font-variant-numeric:tabular-nums;margin-inline-end:3px}
+.filters{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px}
+.filters button{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 12px;font-weight:700;font-size:.88rem;white-space:nowrap;flex:none}
+.filters button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.stop{display:grid;grid-template-columns:auto 1fr auto;gap:4px 10px;align-items:start;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px;cursor:pointer}
+.stop.done{opacity:.55}
+.stop .n,.rv .n{font-family:var(--f-display);font-size:1.05rem;min-width:2em;height:2em;border-radius:8px;background:var(--bg);display:grid;place-items:center;font-variant-numeric:tabular-nums}
+.stop .main{min-width:0;display:grid;gap:4px}
+.stop .t1{font-weight:700;font-size:1.05rem;overflow-wrap:anywhere}
+.stop .t2{font-size:.9rem;color:var(--muted);overflow-wrap:anywhere}
+.stop .t2 b{color:var(--ink)}
+.stop .chips{display:flex;gap:5px;flex-wrap:wrap}
+.stop .side{display:grid;gap:6px;justify-items:end}
+.stop .cm{font-family:var(--f-code);font-weight:600;background:var(--code-bg);color:var(--code-fg);border-radius:8px;padding:4px 8px;direction:ltr;font-size:.95rem;white-space:nowrap}
+.chip.new{background:var(--accent-soft);color:var(--ink)}
+.chip.done{background:var(--ink);color:var(--bg)}
+.chip.warn{background:var(--no-soft);color:var(--no)}
+.rv{display:grid;grid-template-columns:auto 1fr auto;gap:6px 10px;align-items:start;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.rv.bad{border-color:var(--no)}
+.rv .main{min-width:0;display:grid;gap:4px}
+.rv .fix{display:grid;grid-template-columns:2fr 1fr;gap:6px}
+.stopbar{background:var(--ink);color:var(--bg);border-radius:12px;padding:10px 14px;font-weight:600;font-size:.92rem;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.next{display:grid;gap:2px;text-align:right}
+.next small{font-weight:600;opacity:.8}
+.auth{position:fixed;inset:0;z-index:60;background:var(--bg);overflow-y:auto;padding:calc(env(safe-area-inset-top,0px) + 40px) 16px 40px}
+.auth-box{max-width:420px;margin:0 auto;display:grid;gap:14px}
+.auth-box h1{margin:0 0 4px;font-family:var(--f-display);font-weight:400;font-size:2rem}
+.mapwrap{position:fixed;inset-inline:0;z-index:10;display:grid;grid-template-columns:1fr;background:var(--bg)}
+.mapmain{position:relative;min-width:0;min-height:0}
+#map{position:absolute;inset:0;z-index:0;background:var(--line)}
+.maptools{position:absolute;top:10px;right:10px;left:10px;z-index:500;display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-start;pointer-events:none}
+.mbtn{pointer-events:auto;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:9px 14px;font-weight:700;font-size:.9rem;box-shadow:0 2px 8px rgba(0,0,0,.18)}
+.mbtn.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.mapside{background:var(--bg);overflow-y:auto;padding:12px;display:grid;gap:8px;align-content:start;min-height:0}
+.ms-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.ms-head h3{margin:0;font-family:var(--f-display);font-weight:400;font-size:1.2rem}
+.ms-list{display:grid;gap:6px}
+.ms-row{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px;text-align:right;width:100%}
+.ms-row.cur{border-color:var(--ink)}
+.ms-row.big{padding:12px 14px}
+.ms-row.big .ms-a{font-size:1.15rem}
+.ms-row .cm{font-family:var(--f-code);font-weight:600;background:var(--code-bg);color:var(--code-fg);border-radius:8px;padding:4px 9px;direction:ltr;font-size:1.05rem;white-space:nowrap}
+.ms-row.big .cm{font-size:1.5rem}
+.ms-a{font-weight:700;display:grid;min-width:0}
+.ms-a small{font-weight:600;color:var(--muted);font-size:.8rem}
+.ms-fix{background:var(--surface);border:1.5px solid var(--ink);border-radius:12px;padding:12px;display:grid;gap:8px}
+.ms-addr{font-family:var(--f-display);font-size:1.25rem}
+@media (max-width:899px){
+  .mapside{position:absolute;inset-inline:10px;bottom:10px;z-index:600;max-height:45%;border-radius:14px;box-shadow:0 4px 18px rgba(0,0,0,.25);padding:8px;background:var(--bg)}
+  .mapwrap{display:block}
+  .mapmain{position:absolute;inset:0}
+}
+@media (min-width:900px){ .mapwrap{grid-template-columns:360px 1fr} .mapside{border-inline-start:0;border-inline-end:1px solid var(--line)} }
+.pinwrap{background:none;border:0}
+.pinbox{position:absolute;left:0;top:0;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:4px}
+.pinbox.open{transform:translate(-50%,calc(-100% + 8px))}
+.pin{width:16px;height:16px;border-radius:50%;background:#D88A00;border:3px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.4)}
+.pin.approx{background:#fff;border:3px dashed #D88A00}
+.pin.fix{background:#2F7DF6;width:20px;height:20px}
+.pin-card{background:#15202A;color:#fff;border-radius:12px;padding:8px 12px;text-align:center;box-shadow:0 3px 12px rgba(0,0,0,.35);white-space:nowrap;font-family:var(--f-body)}
+.pin-card.approx{outline:2px dashed #D88A00;outline-offset:2px}
+.pin-card.fix{background:#2F7DF6}
+.pc-addr{font-weight:700;font-size:14px}
+.pc-code{font-family:var(--f-code);font-weight:600;font-size:24px;color:#FFD166;direction:ltr;letter-spacing:.04em;line-height:1.2}
+.pc-none{font-size:13px;color:#FFB4A9}
+.pc-d{font-size:12px;opacity:.8}
+.leaflet-container{font-family:var(--f-body)}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .leaflet-tile{filter:invert(1) hue-rotate(180deg) brightness(.92) contrast(.9)} }
+:root[data-theme="dark"] .leaflet-tile{filter:invert(1) hue-rotate(180deg) brightness(.92) contrast(.9)}
+.dpin{min-width:24px;height:24px;padding:0 5px;border-radius:12px;background:#2F7DF6;color:#fff;font:800 12px/24px var(--f-body);text-align:center;border:2px solid #fff;box-shadow:0 1px 5px rgba(0,0,0,.45);box-sizing:content-box}
+.dpin.approx{background:#fff;color:#2F7DF6;border:2px dashed #2F7DF6}
+.dpin.done{background:#8A949B;opacity:.75;min-width:16px;height:16px;line-height:16px;font-size:10px}
+.pin-card.day{background:#1F5FD0}
+.pin-card.day .pc-code{color:#FFE08A}
+.mbtn.day{background:#2F7DF6;color:#fff;border-color:#2F7DF6}
+.ms-row.day{gap:8px}
+.ms-row.day .ms-a{flex:1;min-width:0}
+.ms-row.walk{border-color:#2F7DF6;box-shadow:inset 3px 0 0 #2F7DF6}
+.daypop .leaflet-popup-content{margin:12px 14px;font-family:var(--f-body)}
+.daypop .leaflet-popup-content-wrapper,.daypop .leaflet-popup-tip{background:var(--surface);color:var(--ink)}
+.dpop{display:grid;gap:8px;min-width:200px}
+.dp-h{font-weight:800;font-size:16px}
+.dp-codes{display:flex;gap:6px;flex-wrap:wrap}
+.dp-code{font-family:var(--f-code);font-weight:600;font-size:22px;background:var(--code-bg);color:var(--code-fg);border:0;border-radius:10px;padding:4px 12px;direction:ltr}
+.dp-btns{display:flex;gap:6px;flex-wrap:wrap}
+.dp-btns a.btn{text-decoration:none;color:inherit}
+details summary{cursor:pointer}
+.pc-info{font-size:13px;font-weight:700;color:#fff;margin-top:2px}
+.dp-info{font-weight:700;background:var(--accent-soft);border-radius:8px;padding:6px 10px}
+.ms-info{color:var(--ink)!important;font-weight:700!important}
+.news-load{display:flex;gap:8px;flex-wrap:wrap}
+.kbd.rtl{direction:rtl;display:inline-block;margin:2px 0;white-space:normal}
+.nl{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:6px 10px;font-size:.92rem}
+.nl.mesh{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:800}
+.nl b{font-size:1.15rem;font-variant-numeric:tabular-nums}
+.news-next{position:sticky;top:calc(env(safe-area-inset-top,0px) + 4px);z-index:4;display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;border:0;border-radius:12px;background:var(--ink);color:var(--bg);padding:12px 14px;font-weight:800;font-size:1.05rem;text-align:right}
+.news-next .cm,.news-gh .cm{font-family:var(--f-code);font-weight:600;background:var(--code-bg);color:var(--code-fg);border-radius:8px;padding:4px 10px;direction:ltr;font-size:1.1rem;border:0;white-space:nowrap}
+.news-next .cm{background:#000}
+.news-g{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;scroll-margin-top:70px}
+.news-g.next{border:2px solid var(--accent)}
+.news-g.done{opacity:.5}
+.news-gh{display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--line)}
+.news-gh .n{font-family:var(--f-display);min-width:2.2em;height:2em;padding:0 6px;border-radius:8px;background:var(--bg);display:grid;place-items:center;font-variant-numeric:tabular-nums}
+.news-addr{flex:1;min-width:0;display:grid}
+.news-addr b{font-size:1.1rem}
+.news-addr small{color:var(--muted)}
+.news-i{display:flex;align-items:center;gap:8px;padding:6px 12px;border-bottom:1px solid var(--line)}
+.news-i:last-child{border-bottom:0}
+.news-i.done{opacity:.45}
+.news-i.fri{background:var(--ask-soft)}
+.news-i-main{flex:1;min-width:0;display:flex;align-items:center;gap:8px;flex-wrap:wrap;border:0;background:none;text-align:right;padding:4px 0}
+.news-fa{font-weight:700;min-width:6.5em}
+.chip.paper{background:var(--bg);color:var(--ink);border:1px solid var(--line)}
+.chip.box{background:#DCEBFF;color:#1F5FD0}
+.chip.special{background:var(--accent-soft);color:var(--ink)}
+.news-ok{width:44px;height:44px;font-size:1.1rem;font-weight:800}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .chip.box{background:#13284A;color:#8AB8FF} }
+:root[data-theme="dark"] .chip.box{background:#13284A;color:#8AB8FF}
+.news-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:.95rem;color:var(--muted)}
+.news-extra{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:8px 0 10px}
+.xg{border:1.5px solid var(--line);background:var(--bg);color:var(--ink);border-radius:999px;padding:7px 13px;font:inherit;font-weight:700;font-size:.9rem;cursor:pointer}
+.xg small{font-weight:600;opacity:.7}
+.xg.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.nm{font-size:.8rem;font-weight:600;opacity:.72;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:14em}
+.un-mark{margin:8px 0 2px;padding:8px 10px;border-radius:10px;background:#FFE58A;color:#1B1B1B;font-weight:800;font-size:1.05rem;line-height:1.35}
+.mk-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.news-top b{color:var(--ink)}
+.upnext{background:var(--ink);color:var(--bg);border-radius:18px;padding:16px;display:grid;gap:12px}
+.upnext.done-all{text-align:center}
+:root[data-theme="dark"] .upnext{background:#1B2833;color:#E7ECEE;border:1px solid #2E3E4A}
+:root[data-theme="dark"] .un-c .news-ok{background:#0E151B;color:#E7ECEE}
+:root[data-theme="dark"] .slide-knob{background:#0E151B;color:#F0AE38}
+.un-h{display:flex;align-items:center;gap:8px}
+.un-n{font-family:var(--f-display);font-size:1.1rem;background:var(--accent);color:var(--accent-ink);border-radius:8px;padding:2px 10px}
+.un-lbl{font-size:.8rem;letter-spacing:.08em;opacity:.75;font-weight:700}
+.un-addr{font-family:var(--f-display);font-size:2rem;line-height:1.1}
+.un-addr small{font-family:var(--f-body);font-size:1rem;opacity:.8}
+.un-codes{display:flex;gap:8px;flex-wrap:wrap}
+.un-code{font-family:var(--f-code);font-weight:600;font-size:2rem;background:#000;color:var(--code-fg);border:0;border-radius:12px;padding:6px 16px;direction:ltr;letter-spacing:.05em}
+.un-addcode{justify-self:start;border:1px dashed rgba(255,255,255,.35);background:none;color:inherit;opacity:.75;border-radius:999px;padding:4px 12px;font-size:.85rem}
+.un-bnote{opacity:.85;font-size:.92rem}
+.un-take{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.un-take-l{font-size:.8rem;letter-spacing:.08em;opacity:.75;font-weight:700}
+.bag{background:var(--accent);color:var(--accent-ink);border-radius:10px;padding:6px 12px;font-weight:800;font-size:1.15rem}
+.bag b{font-size:1.3rem}
+.bag.sm{font-size:.85rem;padding:2px 9px;border-radius:999px}
+.bag.fri{background:var(--ask-soft);color:var(--ink)}
+.un-list{display:grid;gap:6px}
+.un-c{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.08);border-radius:12px;padding:8px 10px}
+.un-c-main{flex:1;min-width:0;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.un-fa{font-weight:800;font-size:1.15rem;min-width:6em}
+.un-c .news-ok{background:var(--bg);color:var(--ink)}
+.un-go{min-height:60px;font-size:1.15rem}
+.slide{position:relative;height:62px;border-radius:16px;background:var(--accent);color:var(--accent-ink);overflow:hidden;touch-action:pan-y;user-select:none;-webkit-user-select:none;margin-top:12px}
+.slide-txt{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.1rem;padding-left:56px;pointer-events:none;opacity:.95}
+.slide-fill{position:absolute;inset-block:0;left:0;width:0;background:rgba(0,0,0,.12);pointer-events:none}
+.slide-knob{position:absolute;top:5px;left:5px;width:52px;height:52px;border-radius:12px;background:var(--surface);color:var(--ink);display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:900;box-shadow:0 2px 6px rgba(0,0,0,.2);touch-action:none;cursor:grab}
+.slide.anim .slide-knob,.slide.anim .slide-fill{transition:transform .2s ease,width .2s ease}
+.slide.ok{background:#1F9D55;color:#fff}
+.tapgo{transition:background .15s ease,transform .1s ease}
+.tapgo:active{transform:scale(.97)}
+.tapgo.ok,.tapgo:disabled{opacity:1!important}
+.tapgo.ok{background:#1F9D55!important;border-color:#1F9D55!important;color:#fff!important}
+@keyframes unPulse{0%{box-shadow:0 0 0 0 rgba(31,157,85,.7)}100%{box-shadow:0 0 0 14px rgba(31,157,85,0)}}
+.upnext.pulse{animation:unPulse .25s ease-out}
+@keyframes unIn{from{opacity:0;transform:translateX(-36px) scale(.97)}to{opacity:1;transform:none}}
+.upnext.enter{animation:unIn .32s cubic-bezier(.2,.8,.2,1)}
+@media (prefers-reduced-motion: reduce){.upnext.enter{animation:none}}
+.un-after{display:grid;gap:6px}
+.un-a{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:8px 12px;text-align:right;font-weight:600;font-size:.9rem}
+.news-load-d,.news-menu{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.news-load-d summary,.news-menu summary{cursor:pointer;font-weight:700;color:var(--muted)}
+.news-load-d[open] summary,.news-menu[open] summary{margin-bottom:8px}
+.news-sec{margin:6px 2px 0;font-size:.78rem;letter-spacing:.06em;color:var(--muted);font-weight:700}
+.news-top .btn.small{min-height:34px;padding:4px 10px;font-size:.85rem}
+.walklock{position:fixed;inset:0;z-index:100;background:#000;color:#8C99A2;display:flex;flex-direction:column;justify-content:space-between;align-items:center;padding:calc(env(safe-area-inset-top,0px) + 40px) 24px calc(env(safe-area-inset-bottom,0px) + 40px);touch-action:none;user-select:none;-webkit-user-select:none;text-align:center}
+.wl-next{display:grid;gap:6px;justify-items:center;opacity:.55}
+.wl-n{font-size:1rem}
+.wl-a{font-family:var(--f-display);font-size:1.8rem;color:#C9D2D8}
+.wl-c{font-family:var(--f-code);font-size:1.6rem;color:#B89648;direction:ltr}
+.wl-t{font-size:1rem}
+.wl-btn{width:120px;height:120px;border-radius:50%;border:2px solid #333;background:#0b0b0b;color:#8C99A2;font-weight:700;font-size:.95rem;transition:transform .9s linear,background .9s linear;touch-action:none}
+.wl-btn.hold{transform:scale(1.15);background:#3a2b0e;color:#FFD166}
+.load-list{display:grid;gap:4px}
+.load-r{display:grid;grid-template-columns:2.6em auto 1fr;gap:10px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:.92rem}
+.load-r.mesh{border-color:var(--accent);background:var(--accent-soft)}
+.load-n{font-variant-numeric:tabular-nums;font-weight:800;font-size:1.25rem;text-align:center}
+.load-u{font-weight:800}
+.load-a{color:var(--muted);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+<script src="config.js"></script>
+<script src="demo-seed.js"></script>
+<script src="supabase.js"></script>
+<link rel="stylesheet" href="leaflet.css">
+<script src="leaflet.js"></script>
+</head>
+<body>
+
+
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand">
+      <h1>DeliveryKai</h1>
+      <div class="tgls">
+        <button type="button" class="tgl" id="tglDark" aria-pressed="false" aria-label="מצב לילה" title="מצב לילה"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"/></svg></button>
+        <button type="button" class="tgl" id="tglAwake" aria-pressed="false" aria-label="מסך דולק" title="מסך דולק"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M12 7v4M10 9h4" /></svg></button>
+      </div>
+      <div class="status" id="status"><span class="dot" id="statusDot"></span><span id="statusText">טוען…</span></div>
+    </div>
+    <div class="search" id="searchWrap">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+      <input id="q" type="search" inputmode="search" placeholder="רחוב, מספר, שם או קוד" autocomplete="off" aria-label="חיפוש">
+      <button class="clear" id="qClear" aria-label="נקה חיפוש" hidden>×</button>
+    </div>
+  </header>
+  <main id="view"></main>
+</div>
+
+<nav class="bottom" aria-label="ניווט">
+  <button data-view="list" aria-current="page">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 21V8l8-5 8 5v13M9 21v-6h6v6"/></svg>בניינים</button>
+  <button data-view="map">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg>מפה</button>
+  <button data-view="near">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>קרוב אליי</button>
+  <button data-view="news">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 5h13v14H6a2 2 0 0 1-2-2V5z"/><path d="M17 9h3v8a2 2 0 0 1-2 2"/><path d="M7 9h7M7 12h7M7 15h4"/></svg>עיתונים</button>
+  <button data-view="add" class="add">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>הוספה</button>
+  <button data-view="more">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg>עוד</button>
+</nav>
+
+<div class="mapwrap" id="mapWrap" hidden>
+  <aside class="mapside" id="mapSide" hidden></aside>
+  <div class="mapmain"><div id="map" dir="ltr"></div><div class="maptools" id="mapTools"></div></div>
+</div>
+<div class="sheet" id="sheet" hidden></div>
+<div class="auth" id="auth" hidden></div>
+<span id="who" hidden></span>
+<script>(function(){
+  const LS=(k,v)=>{ try{ if(v===undefined) return localStorage.getItem(k); localStorage.setItem(k,v); }catch(e){ return null; } };
+  const root=document.documentElement, bD=document.getElementById("tglDark"), bA=document.getElementById("tglAwake");
+  function setDark(on){ root.setAttribute("data-theme", on?"dark":"light"); bD.setAttribute("aria-pressed", on?"true":"false"); LS("bank_codes_dark", on?"1":"0"); }
+  setDark(LS("bank_codes_dark")==="1");
+  bD.addEventListener("click",()=>setDark(bD.getAttribute("aria-pressed")!=="true"));
+  let lock=null, want=false;
+  async function grab(){ if(!want) return; try{ if(!navigator.wakeLock) throw 0; lock=await navigator.wakeLock.request("screen"); lock.addEventListener("release",()=>{ lock=null; }); }catch(e){ lock=null; } }
+  async function setAwake(on, quiet){ want=on; bA.setAttribute("aria-pressed", on?"true":"false"); LS("bank_codes_awake", on?"1":"0");
+    if(on){ await grab(); if(!lock && !quiet){ const t=document.getElementById("toast"); if(t){ t.textContent="המכשיר לא תומך בהשארת מסך דולק"; t.hidden=false; setTimeout(()=>t.hidden=true,2600); } } }
+    else if(lock){ try{ await lock.release(); }catch(e){} lock=null; } }
+  bA.addEventListener("click",()=>setAwake(bA.getAttribute("aria-pressed")!=="true"));
+  document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="visible" && want && !lock) grab(); });
+  if(LS("bank_codes_awake")==="1") setAwake(true,true);
+})();</script>
+<div class="scrollbtns" aria-label="גלילה"><button type="button" id="toTop" aria-label="למעלה" hidden><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M6 15l6-6 6 6"/></svg></button><button type="button" id="toBottom" aria-label="למטה" hidden><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M6 9l6 6 6-6"/></svg></button></div>
+<div class="toast" id="toast" hidden role="status"></div>
+<script>(function(){
+  const up=document.getElementById("toTop"), dn=document.getElementById("toBottom");
+  function upd(){ const sh=document.getElementById("sheet"); const open=sh&&!sh.hidden;
+    const y=window.scrollY, h=document.documentElement.scrollHeight, v=window.innerHeight;
+    const a=open||y<300, b=open||(h-v-y)<300; if(up.hidden!==a) up.hidden=a; if(dn.hidden!==b) dn.hidden=b; }
+  up.addEventListener("click",()=>window.scrollTo({top:0,behavior:"smooth"}));
+  dn.addEventListener("click",()=>window.scrollTo({top:document.documentElement.scrollHeight,behavior:"smooth"}));
+  window.addEventListener("scroll",upd,{passive:true}); window.addEventListener("resize",upd);
+  let raf=0; new MutationObserver(()=>{ if(!raf) raf=requestAnimationFrame(()=>{ raf=0; upd(); }); }).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:["hidden"]});
+  upd();
+})();</script>
+<div class="walklock" id="walkLock" hidden><div class="wl-next"></div><button class="wl-btn" type="button">החזק לפתיחה</button></div>
+
+<script>
+(function(){
+"use strict";
+/* ---------- helpers ---------- */
+const $ = (s, r=document) => r.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const norm = s => String(s ?? "").replace(/["'״׳`’\-–—,.()\/\\]/g," ").replace(/\s+/g," ").trim().toLowerCase();
+const newId = () => "p" + Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+const keyOf = it => [norm(it.street), norm(it.num), norm(it.entrance), norm(it.city)].join("|");
+const addrOf = it => [it.street, it.num].filter(Boolean).join(" ") + (it.entrance ? " · כניסה " + it.entrance : "");
+const DOOR = {
+  yes:{t:"מותר להשאיר ליד הדלת", short:"ליד הדלת", c:"yes"},
+  no:{t:"רק מסירה ביד", short:"רק ביד", c:"no"},
+  ask:{t:"לא ידוע", short:"לא ידוע", c:"ask"}
+};
+const ACTIONS = {door:"הושאר ליד הדלת", hand:"נמסר ביד", neighbor:"הושאר אצל שכן", noanswer:"לא ענה", returned:"הוחזר"};
+let toastTimer;
+function toast(msg){ const t=$("#toast"); t.textContent=msg; t.hidden=false; clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.hidden=true, 2600); }
+function fmtDist(m){ if(m==null) return ""; return m<1000 ? Math.round(m)+" מ׳" : (m/1000).toFixed(1)+" ק״מ"; }
+function haversine(a,b){ const R=6371000, toR=x=>x*Math.PI/180;
+  const dLat=toR(b.lat-a.lat), dLng=toR(b.lng-a.lng);
+  const h=Math.sin(dLat/2)**2+Math.cos(toR(a.lat))*Math.cos(toR(b.lat))*Math.sin(dLng/2)**2;
+  return 2*R*Math.asin(Math.sqrt(h)); }
+function fmtTime(t){ const d=new Date(t), now=new Date();
+  const hm=d.toLocaleTimeString("he-IL",{hour:"2-digit",minute:"2-digit"});
+  if(d.toDateString()===now.toDateString()) return "היום "+hm;
+  const y=new Date(now); y.setDate(now.getDate()-1);
+  if(d.toDateString()===y.toDateString()) return "אתמול "+hm;
+  return d.toLocaleDateString("he-IL",{day:"numeric",month:"numeric",year:"2-digit"})+" "+hm; }
+function numVal(n){ const m=String(n||"").match(/-?\d+/); return m?parseInt(m[0],10):99999; }
+async function copy(text){
+  try{ await navigator.clipboard.writeText(text); toast("הועתק: "+text); }
+  catch(e){ toast("לא ניתן להעתיק. סמן את הקוד והעתק ידנית."); }
+}
+
+/* ---------- model ---------- */
+const RES_DEFAULT = () => ({floor:"",apt:"",name:"",phone:"",door:"ask",notes:"",history:[]});
+function normalize(raw){
+  const it=Object.assign({street:"",num:"",entrance:"",city:"",codes:[],door:"ask",notes:"",residents:[],history:[]}, raw);
+  if(!Array.isArray(it.codes)) it.codes=[];
+  if(!Array.isArray(it.residents)) it.residents=[];
+  if(!Array.isArray(it.history)) it.history=[];
+  if(it.name || it.phone){
+    it.residents=[Object.assign(RES_DEFAULT(), {id:"r_"+it.id, name:it.name||"", phone:it.phone||"", history:it.history})].concat(it.residents);
+    it.history=[];
+  }
+  delete it.name; delete it.phone;
+  it.residents=it.residents.map((r,i)=>Object.assign(RES_DEFAULT(), {id:"r_"+it.id+"_"+i}, r));
+  if(!DOOR[it.door]) it.door="ask";
+  return it;
+}
+const effDoor = (r,b) => (r.door && r.door!=="ask") ? {k:r.door, def:false} : {k:b.door||"ask", def:(b.door||"ask")!=="ask"};
+const resLoc = r => [r.floor!==""&&r.floor!=null?"קומה "+r.floor:null, r.apt?"דירה "+r.apt:null].filter(Boolean).join(" · ");
+const sortRes = list => list.slice().sort((a,b)=>numVal(a.floor)-numVal(b.floor) || numVal(a.apt)-numVal(b.apt) || String(a.name).localeCompare(String(b.name),"he"));
+const lastOf = h => (h||[]).reduce((m,x)=>!m||x.t>m.t?x:m, null);
+
+/* ---------- state ---------- */
+const S = { mode:"loading", view:"list", q:"", filter:"left", intake:null, curStop:null, ai:null, aiImages:false, pos:null, posErr:null, drive:false, watchId:null, lastAuto:null,
+  wake:null, importPlan:null, importBusy:false, demoDismissed:false, openId:null, openRes:null, resQ:"" };
+
+/* ---------- storage ---------- */
+const LS_KEY="bank_codes_places_v1";
+function lsGet(){ try{ return JSON.parse(localStorage.getItem(LS_KEY)||"null"); }catch(e){ return null; } }
+function lsSet(arr){ try{ localStorage.setItem(LS_KEY, JSON.stringify(arr)); }catch(e){} }
+try{ S.demoDismissed = localStorage.getItem("bank_codes_demo_off")==="1"; }catch(e){}
+S.city=""; try{ S.city = localStorage.getItem("bank_codes_city")||""; }catch(e){}
+try{ const v=localStorage.getItem("bank_codes_view"); if(v==="map"||v==="list"||v==="news"||v==="near") S.view=v; else if(window.matchMedia("(min-width: 900px)").matches) S.view="map"; }catch(e){}
+
+/* ---------- cloud (Supabase) ---------- */
+const CFG = window.BANK_CONFIG || {};
+const sb = (window.supabase && CFG.url && CFG.key && !/PASTE/.test(CFG.url+CFG.key))
+  ? window.supabase.createClient(CFG.url, CFG.key, {auth:{persistSession:true, autoRefreshToken:true, detectSessionInUrl:false}})
+  : null;
+let UID=null;
+const OB_KEY = () => "bank_codes_outbox_"+(UID||"local");
+function obGet(){ try{ return JSON.parse(localStorage.getItem(OB_KEY())||"{}")||{}; }catch(e){ return {}; } }
+function obSet(o){ try{ localStorage.setItem(OB_KEY(), JSON.stringify(o)); }catch(e){} }
+
+const store = {
+  map:new Map(), flushing:false, retryT:null,
+  all(){ return [...this.map.values()]; },
+  get(id){ return this.map.get(id); },
+  cache(){ clearTimeout(this._ct); this._ct=setTimeout(()=>lsSet(this.all()),300); },
+  body(it){ const b=JSON.parse(JSON.stringify(it)); delete b.id; return b; },
+  async start(){
+    dayLoad(); newsLoadLocal(); lockWire();
+    const cached=lsGet();
+    if(Array.isArray(cached)) cached.forEach(it=>it&&it.id&&this.map.set(it.id,normalize(it)));
+    render();
+    if(!sb){ setMode("local"); if(!CFG.demo) showSetupError(); return; }
+    const { data } = await sb.auth.getSession();
+    if(!data || !data.session){ showAuth(); return; }
+    UID=data.session.user.id; $("#who").textContent=data.session.user.email||"";
+    await this.load();
+    window.addEventListener("online", ()=>this.flush());
+    document.addEventListener("visibilitychange", ()=>{ if(document.visibilityState==="visible"){ this.flush().then(()=>this.load()); } });
+  },
+  async load(){
+    if(!sb||!UID) return;
+    const rows=[]; let from=0;
+    try{
+      for(;;){
+        const { data, error } = await sb.from("buildings").select("id,data").order("id").range(from, from+999);
+        if(error) throw error;
+        rows.push(...data);
+        if(data.length<1000) break; from+=1000;
+      }
+    }catch(e){ setMode("offline"); return; }
+    const m=new Map();
+    rows.forEach(r=>{ if(!r||!r.data) return; if(String(r.id).startsWith("__")){ if(r.id==="__news") newsMergeRemote(r.data); return; } m.set(r.id, normalize(Object.assign({}, r.data, {id:r.id}))); });
+    const ob=obGet();
+    Object.entries(ob).forEach(([id,op])=>{ if(id.startsWith("__")) return; if(op.op==="d") m.delete(id); else if(op.data) m.set(id, normalize(Object.assign({}, op.data, {id}))); });
+    this.map=m; this.cache(); setMode(Object.keys(ob).length?"pending":"cloud");
+    if(S.openId) refreshCard(); else render();
+    if(Object.keys(ob).length) this.flush();
+  },
+  queue(id, op){ const ob=obGet(); ob[id]=op; obSet(ob); },
+  async flush(){
+    if(!sb||!UID||this.flushing) return;
+    this.flushing=true; clearTimeout(this.retryT);
+    try{
+      for(;;){
+        const ob=obGet(); const ids=Object.keys(ob); if(!ids.length) break;
+        const ups=ids.filter(id=>ob[id].op==="u").slice(0,200);
+        const dels=ids.filter(id=>ob[id].op==="d").slice(0,200);
+        if(ups.length){
+          const rows=ups.map(id=>({id, user_id:UID, data:ob[id].data, updated_at:new Date().toISOString()}));
+          const { error } = await sb.from("buildings").upsert(rows);
+          if(error) throw error;
+        }
+        if(dels.length){
+          const { error } = await sb.from("buildings").delete().in("id", dels);
+          if(error) throw error;
+        }
+        const now=obGet();
+        [...ups,...dels].forEach(id=>{ if(now[id] && now[id].v===ob[id].v) delete now[id]; });
+        obSet(now);
+      }
+      setMode("cloud");
+    }catch(e){
+      setMode("pending");
+      this.retryT=setTimeout(()=>this.flush(), 20000);
+      this.flushing=false; return;
+    }
+    this.flushing=false;
+    if(Object.keys(obGet()).length) setTimeout(()=>this.flush(), 300);
+  },
+  async save(it){
+    it.updated=Date.now(); this.map.set(it.id,it); this.cache();
+    this.queue(it.id, {op:"u", data:this.body(it), v:Date.now()+Math.random()});
+    setMode("pending"); await this.flush();
+  },
+  async remove(id){
+    this.map.delete(id); this.cache();
+    this.queue(id, {op:"d", v:Date.now()+Math.random()});
+    setMode("pending"); await this.flush();
+  },
+  async bulk(items, onProgress){
+    const ob=obGet();
+    items.forEach(it=>{ it.updated=Date.now(); this.map.set(it.id,it); ob[it.id]={op:"u", data:this.body(it), v:Date.now()+Math.random()}; });
+    obSet(ob); this.cache(); onProgress(Math.round(items.length/2));
+    await this.flush(); onProgress(items.length);
+    if(Object.keys(obGet()).length) toast("נשמר במכשיר. יסונכרן לחשבון כשיהיה חיבור.");
+    return [];
+  },
+  write(id, fn){ return Promise.resolve().then(fn).catch(()=>{}); }
+};
+function setMode(m){
+  S.mode=m;
+  $("#statusDot").className="dot "+(m==="cloud"?"cloud":m==="loading"?"":"local");
+  $("#statusText").textContent = m==="cloud" ? "מסונכרן" : m==="pending" ? "ממתין לחיבור…" : m==="offline" ? "אין חיבור · עובד מהמכשיר" : m==="local" ? (CFG.demo?"מצב הדגמה":"לא מחובר לענן") : "טוען…";
+}
+
+/* ---------- map ---------- */
+const M={map:null, layer:null, markers:new Map(), me:null, meAcc:null, follow:false, watch:null, showAll:false, fixId:null, fixMarker:null, wake:null, fitted:false};
+const NEAR_M=70;
+const isWide=()=>window.matchMedia("(min-width: 900px)").matches;
+function layoutMap(){
+  const w=$("#mapWrap"); if(!w||w.hidden) return;
+  const h=document.querySelector("header.top"), nav=document.querySelector("nav.bottom");
+  w.style.top=Math.max(0,h.getBoundingClientRect().bottom)+"px";
+  w.style.bottom=nav.getBoundingClientRect().height+"px";
+  if(M.map) M.map.invalidateSize();
+}
+function mapPoints(){ const q=norm(S.q); return items().filter(cityOk).filter(it=>it.lat!=null && it.lng!=null && matches(it,q)); }
+function ensureMap(){
+  if(M.map || !window.L) return;
+  M.map=L.map("map",{zoomControl:true, attributionControl:true, maxZoom:19}).setView([32.0823,34.8141], 14);
+  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19, attribution:"© OpenStreetMap"}).addTo(M.map);
+  M.layer=L.layerGroup().addTo(M.map);
+  M.map.on("dragstart",()=>{ if(M.follow){ M.follow=false; mapToolbar(); } });
+  M.map.on("click",e=>{ if(M.fixId && M.fixMarker) M.fixMarker.setLatLng(e.latlng); });
+  M.map.on("moveend",()=>{ if(!S.pos) mapSide(); });
+  M.map.on("popupopen", e=>{ const el=e.popup.getElement(); const c=el&&el.querySelector(".leaflet-popup-content"); if(c && !c._wired){ c._wired=true; c.addEventListener("click", ev=>{ const a=ev.target.closest("[data-act],[data-copy]"); if(!a) return; if(a.tagName==="A") return; ev.stopPropagation(); if(a.dataset.copy){ copy(a.dataset.copy); return; } dayAct(a.dataset.act,a); }); } });
+}
+function fitOnce(){
+  if(M.fitted||!M.map) return;
+  if(S.pos){ M.map.setView([S.pos.lat,S.pos.lng],17); M.fitted=true; return; }
+  const pts=mapPoints(); if(!pts.length) return;
+  if(pts.length===1) M.map.setView([pts[0].lat,pts[0].lng],17);
+  else M.map.fitBounds(L.latLngBounds(pts.map(p=>[p.lat,p.lng])).pad(0.1));
+  M.fitted=true;
+}
+function pinIcon(it, open, dist){
+  const cls=it.geo==="approx"?"approx":"exact";
+  if(!open) return L.divIcon({className:"pinwrap", html:`<div class="pinbox"><div class="pin ${cls}"></div></div>`, iconSize:[0,0], iconAnchor:[0,0]});
+  const codes=(it.codes||[]).map(c=>c.value).filter(Boolean);
+  return L.divIcon({className:"pinwrap", iconSize:[0,0], iconAnchor:[0,0], html:
+    `<div class="pinbox open"><div class="pin-card ${cls}" dir="rtl">
+      <div class="pc-addr">${esc(it.street)} ${esc(it.num)}${it.entrance?" · "+esc(it.entrance):""}</div>
+      ${codes.length?`<div class="pc-code">${esc(codes.join(" · "))}</div>`:`<div class="pc-none">אין קוד</div>`}
+      ${dist!=null?`<div class="pc-d">${fmtDist(dist)}${cls==="approx"?" · מיקום משוער":""}</div>`:(cls==="approx"?`<div class="pc-d">מיקום משוער</div>`:"")}
+    </div><div class="pin ${cls}"></div></div>`});
+}
+function nearSet(list){
+  const s=new Set(); if(!S.pos) return s;
+  list.map(it=>({it,d:haversine(S.pos,it)})).filter(x=>x.d<=NEAR_M).sort((a,b)=>a.d-b.d).slice(0,4).forEach(x=>s.add(x.it.id));
+  return s;
+}
+function mapUpdate(){
+  ensureMap(); if(!M.map) return;
+  const list=mapPoints(); const near=nearSet(list); const keep=new Set(); const onRoute=dayOpenBuildingIds();
+  list.forEach(it=>{
+    if(it.id===M.fixId) return;
+    keep.add(it.id);
+    const d=S.pos?haversine(S.pos,it):null;
+    const open=(M.showAll||near.has(it.id)) && !onRoute.has(it.id);
+    const key=[it.lat,it.lng,open,it.geo,(it.codes||[]).map(c=>c.value).join(),it.street,it.num,it.entrance,open&&d!=null?Math.round(d/5):""].join("|");
+    let m=M.markers.get(it.id);
+    if(!m){
+      m=L.marker([it.lat,it.lng],{icon:pinIcon(it,open,d), keyboard:false, zIndexOffset:open?1000:0});
+      m.on("click",()=>{ if(S.fixMode){ startFix(it.id); return; } openCard(it.id); });
+      m._k=key; m.addTo(M.layer); M.markers.set(it.id,m);
+    } else if(m._k!==key){ m.setLatLng([it.lat,it.lng]); m.setIcon(pinIcon(it,open,d)); m.setZIndexOffset(open?1000:0); m._k=key; }
+  });
+  [...M.markers.keys()].forEach(id=>{ if(!keep.has(id)){ M.layer.removeLayer(M.markers.get(id)); M.markers.delete(id); } });
+  dayUpdate(); fitOnce(); mapSide(); mapToolbar();
+}
+function drawMe(){
+  if(!M.map||!S.pos) return;
+  const ll=[S.pos.lat,S.pos.lng];
+  if(!M.me){
+    M.meAcc=L.circle(ll,{radius:S.pos.acc||20, weight:0, fillColor:"#2F7DF6", fillOpacity:.12, interactive:false}).addTo(M.map);
+    M.me=L.circleMarker(ll,{radius:8, color:"#fff", weight:3, fillColor:"#2F7DF6", fillOpacity:1, interactive:false}).addTo(M.map);
+  } else { M.me.setLatLng(ll); M.meAcc.setLatLng(ll); M.meAcc.setRadius(S.pos.acc||20); }
+}
+function startWatch(){
+  if(M.watch!=null) return true;
+  if(!("geolocation" in navigator)){ toast("אין גישה למיקום במכשיר הזה."); return false; }
+  M.watch=navigator.geolocation.watchPosition(p=>{
+    S.pos={lat:p.coords.latitude,lng:p.coords.longitude,acc:p.coords.accuracy}; S.posT=Date.now(); S.posErr=null;
+    drawMe();
+    if(M.follow && M.map) M.map.setView([S.pos.lat,S.pos.lng], Math.max(M.map.getZoom(),17), {animate:true});
+    if(S.view==="map") mapUpdate();
+  }, e=>{ toast(e&&e.code===1?"הגישה למיקום חסומה. אפשר אותה בהגדרות הטלפון.":"אין מיקום כרגע."); }, {enableHighAccuracy:true, maximumAge:3000, timeout:20000});
+  return true;
+}
+function stopWatch(){
+  if(M.watch!=null){ try{ navigator.geolocation.clearWatch(M.watch); }catch(e){} M.watch=null; }
+  M.follow=false; try{ M.wake&&M.wake.release(); }catch(e){} M.wake=null;
+}
+async function toggleFollow(){
+  if(M.follow){ M.follow=false; mapToolbar(); return; }
+  if(!startWatch()) return;
+  M.follow=true;
+  if(S.pos&&M.map) M.map.setView([S.pos.lat,S.pos.lng], Math.max(M.map.getZoom(),17));
+  try{ if(navigator.wakeLock && !M.wake) M.wake=await navigator.wakeLock.request("screen"); }catch(e){}
+  mapToolbar();
+}
+function mapToolbar(){
+  const t=$("#mapTools"); if(!t) return;
+  const nFix=fixList().length;
+  const dOpen=D.stops.filter(x=>!x.done).length;
+  t.innerHTML=`<button class="mbtn day" data-act="dayOpenSheet">${D.stops.length?`משלוחים היום · ${dOpen}`:"+ משלוחים היום"}</button><button class="mbtn ${M.follow?"on":""}" data-act="mapFollow">${M.follow?"עוקב אחריך":M.watch!=null?"מרכז אותי":"עקוב אחריי"}</button>
+    <button class="mbtn ${M.showAll?"on":""}" data-act="mapShowAll">${M.showAll?"הסתר קודים":"הצג את כל הקודים"}</button>
+    <button class="mbtn ${S.fixMode?"on":""}" data-act="mapFix">${S.fixMode?"סיום תיקון":`תיקון מיקומים${nFix?" · "+nFix:""}`}</button>`;
+}
+function fixList(){ return sorted(items().filter(cityOk).filter(it=>it.lat==null||it.geo==="approx")); }
+function startFix(id){
+  const it=store.get(id); if(!it||!M.map) return;
+  M.fixId=id;
+  const ll = it.lat!=null ? L.latLng(it.lat,it.lng) : M.map.getCenter();
+  const icon=L.divIcon({className:"pinwrap", iconSize:[0,0], iconAnchor:[0,0], html:`<div class="pinbox open"><div class="pin-card fix" dir="rtl"><div class="pc-addr">${esc(it.street)} ${esc(it.num)}</div><div class="pc-d">גרור למקום הכניסה</div></div><div class="pin fix"></div></div>`});
+  if(!M.fixMarker){ M.fixMarker=L.marker(ll,{draggable:true, icon, zIndexOffset:3000}).addTo(M.map); }
+  else { M.fixMarker.setIcon(icon); M.fixMarker.setLatLng(ll); if(!M.map.hasLayer(M.fixMarker)) M.fixMarker.addTo(M.map); }
+  M.map.setView(ll, Math.max(M.map.getZoom(), 18));
+  mapUpdate();
+}
+async function saveFix(){
+  const it=store.get(M.fixId); if(!it||!M.fixMarker) return;
+  const ll=M.fixMarker.getLatLng();
+  await store.save(Object.assign({}, it, {lat:ll.lat, lng:ll.lng, geo:"manual"}));
+  toast("המיקום נשמר");
+  nextFix(it.id);
+}
+function nextFix(curId){
+  const list=fixList(); const i=list.findIndex(x=>x.id===curId);
+  const nx=list.filter(x=>x.id!==curId)[Math.max(0,i)] || list.find(x=>x.id!==curId);
+  if(nx) startFix(nx.id); else endFix();
+}
+function endFix(){
+  S.fixMode=false; M.fixId=null;
+  if(M.fixMarker && M.map) M.map.removeLayer(M.fixMarker);
+  mapUpdate(); toast("כל המיקומים מתוקנים");
+}
+function mapSide(){
+  const side=$("#mapSide"); if(!side||!M.map) return;
+  if(S.fixMode){
+    const list=fixList(); const cur=M.fixId?store.get(M.fixId):null;
+    side.hidden=false;
+    side.innerHTML=`<div class="ms-head"><h3>תיקון מיקומים · ${list.length}</h3></div>
+      ${cur?`<div class="ms-fix"><div class="ms-addr">${esc(addrOf(cur))}</div>
+        <div class="meta">${cur.lat==null?"אין מיקום. ":"מיקום משוער. "}גרור את הסיכה או הקש על המפה בדיוק במקום הכניסה.</div>
+        <div class="btn-row"><button class="btn primary" data-act="fixSave">שמור מיקום</button><button class="btn" data-act="fixSkip">דלג</button></div></div>`
+      :`<div class="meta">בחר בניין מהרשימה.</div>`}
+      <div class="ms-list">${list.map(it=>`<button class="ms-row ${it.id===M.fixId?"cur":""}" data-act="fixPick" data-id="${esc(it.id)}"><span class="ms-a">${esc(addrOf(it))}</span><span class="chip ${it.lat==null?"warn":"ask"}">${it.lat==null?"אין מיקום":"משוער"}</span></button>`).join("")}</div>`;
+    return;
+  }
+  const tabs = D.stops.length ? `<div class="filters" role="group"><button data-act="daySide" data-tab="day" aria-pressed="${S.sideTab!=="b"}">משלוחים · ${D.stops.filter(x=>!x.done).length}</button><button data-act="daySide" data-tab="b" aria-pressed="${S.sideTab==="b"}">בניינים</button></div>` : "";
+  if(D.stops.length && S.sideTab!=="b"){
+    if(isWide()){ side.hidden=false; side.innerHTML=tabs+daySideHtml(); return; }
+    let near=S.pos?D.stops.filter(st=>!st.done).map(st=>({st,loc:dayLoc(st)})).filter(x=>x.loc.lat!=null).map(x=>Object.assign(x,{d:haversine(S.pos,x.loc)})).sort((a,b)=>a.d-b.d)[0]:null;
+    if(DAY_SORT==="order"){ const n=nextInOrder(); if(n){ const l=dayLoc(n); near={st:n, loc:l, d:(S.pos&&l.lat!=null)?haversine(S.pos,l):null}; } else near=null; }
+    if(near && (DAY_SORT==="order" || near.d<=150)){ const codes=near.loc.b?(near.loc.b.codes||[]).map(c=>c.value).filter(Boolean):[];
+      side.hidden=false;
+      side.innerHTML=`<div class="ms-row big day"><button class="ms-a" data-act="dayFocus" data-id="${esc(near.st.id)}" style="border:0;background:none;text-align:right;padding:0;color:inherit"><span>${DAY_SORT==="order"?"הבא: ":""}#${esc(near.st.no)} · ${esc(dayAddr(near.st))}</span>${near.st.info?`<small class="ms-info">${esc(near.st.info)}</small>`:""}<small>${near.d!=null?fmtDist(near.d)+" · ":""}נותרו ${D.stops.filter(x=>!x.done).length}</small></button>${codes.length?`<span class="cm">${esc(codes[0])}</span>`:`<span class="chip warn">אין קוד</span>`}<button class="icon-btn" data-act="dayDone" data-id="${esc(near.st.id)}" aria-label="נמסר">✓</button></div>`;
+    } else { side.hidden=true; side.innerHTML=""; }
+    return;
+  }
+  const ref = S.pos || (()=>{ const c=M.map.getCenter(); return {lat:c.lat,lng:c.lng}; })();
+  const list=mapPoints().map(it=>({it,d:haversine(ref,it)})).sort((a,b)=>a.d-b.d);
+  if(!isWide()){
+    const n=list[0];
+    if(S.pos && n && n.d<=150){ side.hidden=false; side.innerHTML=sideRow(n.it,n.d,true); }
+    else { side.hidden=true; side.innerHTML=""; }
+    return;
+  }
+  side.hidden=false;
+  side.innerHTML=tabs+`<div class="ms-head"><h3>${S.pos?"הכי קרובים אליך":"במרכז המפה"}</h3><span class="meta">${list.length} בניינים</span></div>
+    <div class="ms-list">${list.slice(0,40).map(x=>sideRow(x.it,x.d,false)).join("")||`<div class="meta">אין בניינים עם מיקום באזור.</div>`}</div>`;
+}
+function sideRow(it,d,big){
+  const codes=(it.codes||[]).map(c=>c.value).filter(Boolean);
+  return `<button class="ms-row ${big?"big":""}" data-open="${esc(it.id)}">
+    <span class="ms-a">${esc(addrOf(it))}<small>${fmtDist(d)}${it.geo==="approx"?" · משוער":""}</small></span>
+    ${codes.length?`<span class="cm">${esc(codes.join(" · "))}</span>`:`<span class="chip warn">אין קוד</span>`}</button>`;
+}
+window.addEventListener("resize", ()=>{ if(S.view==="map"){ layoutMap(); mapSide(); } });
+
+/* ---------- today's route (pasted list, this device only, cleared daily) ---------- */
+const D={stops:[], layer:null, markers:new Map(), geoBusy:false, geoMsg:""};
+const DAY_LS=()=>"bank_codes_route_"+dayKey();
+let DAY_SORT="dist"; try{ DAY_SORT=localStorage.getItem("bank_codes_daysort")||"dist"; }catch(e){}
+function setDaySort(m){ DAY_SORT=m; try{ localStorage.setItem("bank_codes_daysort",m); }catch(e){} }
+const byNo=(a,b)=>(parseInt(a.st.no,10)||0)-(parseInt(b.st.no,10)||0);
+function nextInOrder(){ return D.stops.filter(x=>!x.done).sort((a,b)=>(parseInt(a.no,10)||0)-(parseInt(b.no,10)||0))[0]||null; }
+const GEO_CACHE="bank_codes_geocache";
+function dayLoad(){
+  try{ const v=JSON.parse(localStorage.getItem(DAY_LS())||"null"); D.stops=Array.isArray(v)?v:[]; }catch(e){ D.stops=[]; }
+  try{ Object.keys(localStorage).filter(k=>k.startsWith("bank_codes_route_")&&k!==DAY_LS()).forEach(k=>localStorage.removeItem(k)); }catch(e){}
+}
+function daySave(){ try{ localStorage.setItem(DAY_LS(), JSON.stringify(D.stops)); }catch(e){} }
+function geoCacheGet(){ try{ return JSON.parse(localStorage.getItem(GEO_CACHE)||"{}")||{}; }catch(e){ return {}; } }
+function geoCacheSet(o){ try{ localStorage.setItem(GEO_CACHE, JSON.stringify(o)); }catch(e){} }
+function parseRoute(text, defCity){
+  const out=[];
+  String(text).split(/\r?\n/).forEach(line=>{
+    line=line.trim(); if(!line) return;
+    let no="", addr="", city="", info="";
+    const parts=line.split("|").map(x=>x.trim());
+    if(parts.length>=2){ no=parts[0].replace(/\D/g,""); addr=parts[1]; city=parts[2]||""; info=parts.slice(3).join(" · "); }
+    else {
+      const m=line.match(/^#?(\d{1,3})[\s.):\-]+(.*)$/); if(m){ no=m[1]; addr=m[2]; } else addr=line;
+      const c=addr.split(","); if(c.length>1){ addr=c[0].trim(); city=c.slice(1).join(",").trim(); }
+    }
+    const a=splitAddr(addr); if(!a.street||!a.num) return;
+    out.push({id:newId(), no:no||String(out.length+1), street:a.street, num:a.num, city:city||defCity||"", info, done:false});
+  });
+  return out;
+}
+function dayB(st){ return findBuilding({street:st.street, num:st.num, city:st.city, entrance:""}); }
+function dayLoc(st){
+  const b=dayB(st);
+  if(st.geo==="gps" && st.lat!=null) return {lat:st.lat, lng:st.lng, geo:"gps", b};
+  if(b && b.lat!=null) return {lat:b.lat, lng:b.lng, geo:b.geo||"auto", b};
+  if(st.lat!=null) return {lat:st.lat, lng:st.lng, geo:st.geo||"approx", b};
+  return {lat:null, lng:null, geo:null, b};
+}
+const dayAddr = st => `${st.street} ${st.num}`;
+async function geocodeDay(){
+  if(D.geoBusy) return;
+  const cache=geoCacheGet();
+  const todo=D.stops.filter(st=>dayLoc(st).lat==null);
+  todo.forEach(st=>{ const k=norm(dayAddr(st)+" "+st.city); if(cache[k]){ Object.assign(st, cache[k]); } });
+  daySave();
+  const left=D.stops.filter(st=>dayLoc(st).lat==null);
+  if(!left.length){ mapUpdate(); fitDay(); return; }
+  D.geoBusy=true; mapUpdate(); fitDay();
+  for(let i=0;i<left.length;i++){
+    const st=left[i];
+    D.geoMsg=`מאתר כתובות ${i+1}/${left.length}`; mapSide();
+    try{
+      const g=await geoLookup({street:st.street, num:st.num, city:st.city});
+      if(g){ Object.assign(st,g); cache[norm(dayAddr(st)+" "+st.city)]=g; geoCacheSet(cache); daySave(); mapUpdate(); }
+    }catch(e){ await sleepMs(1500); }
+  }
+  D.geoBusy=false; D.geoMsg="";
+  const miss=D.stops.filter(st=>dayLoc(st).lat==null).length;
+  mapUpdate(); fitDay();
+  if(miss) toast(`${miss} כתובות לא אותרו — הן מופיעות ברשימה בלי סיכה.`);
+}
+function fitDay(){
+  if(!M.map) return;
+  const pts=D.stops.map(dayLoc).filter(l=>l.lat!=null).map(l=>[l.lat,l.lng]);
+  if(!pts.length) return;
+  M.fitted=true; M.follow=false;
+  if(pts.length===1) M.map.setView(pts[0],17); else M.map.fitBounds(L.latLngBounds(pts).pad(0.08));
+}
+function dayIcon(st, loc, open, d){
+  const approx=loc.geo==="approx";
+  if(!open) return L.divIcon({className:"pinwrap", iconSize:[0,0], iconAnchor:[0,0],
+    html:`<div class="pinbox"><div class="dpin ${st.done?"done":""} ${approx&&!st.done?"approx":""}">${esc(st.no)}</div></div>`});
+  const codes=loc.b?(loc.b.codes||[]).map(c=>c.value).filter(Boolean):[];
+  return L.divIcon({className:"pinwrap", iconSize:[0,0], iconAnchor:[0,0], html:
+    `<div class="pinbox open"><div class="pin-card day ${approx?"approx":""}" dir="rtl">
+      <div class="pc-addr">#${esc(st.no)} · ${esc(dayAddr(st))}</div>
+      ${codes.length?`<div class="pc-code">${esc(codes.join(" · "))}</div>`:`<div class="pc-none">אין קוד</div>`}
+      ${st.info?`<div class="pc-info">${esc(st.info)}</div>`:""}
+      <div class="pc-d">${d!=null?fmtDist(d):""}${approx?" · מיקום משוער":""}</div>
+    </div><div class="dpin">${esc(st.no)}</div></div>`});
+}
+function dayUpdate(){
+  if(!M.map) return;
+  if(!D.layer) D.layer=L.layerGroup().addTo(M.map);
+  const keep=new Set();
+  const withLoc=D.stops.map(st=>({st, loc:dayLoc(st)})).filter(x=>x.loc.lat!=null);
+  const near=new Set();
+  if(S.pos) withLoc.filter(x=>!x.st.done).map(x=>({id:x.st.id, d:haversine(S.pos,x.loc)})).filter(x=>x.d<=NEAR_M).sort((a,b)=>a.d-b.d).slice(0,4).forEach(x=>near.add(x.id));
+  withLoc.forEach(({st,loc})=>{
+    keep.add(st.id);
+    const d=S.pos?haversine(S.pos,loc):null;
+    const open=!st.done && (M.showAll || near.has(st.id));
+    const codes=loc.b?(loc.b.codes||[]).map(c=>c.value).join():"";
+    const key=[loc.lat,loc.lng,loc.geo,open,st.done,codes,open&&d!=null?Math.round(d/5):""].join("|");
+    let m=D.markers.get(st.id);
+    if(!m){
+      m=L.marker([loc.lat,loc.lng],{icon:dayIcon(st,loc,open,d), keyboard:false, zIndexOffset:open?2500:(st.done?-100:1500)});
+      m.on("click",()=>dayPopup(st.id));
+      m._k=key; m.addTo(D.layer); D.markers.set(st.id,m);
+    } else if(m._k!==key){ m.setLatLng([loc.lat,loc.lng]); m.setIcon(dayIcon(st,loc,open,d)); m.setZIndexOffset(open?2500:(st.done?-100:1500)); m._k=key; }
+  });
+  [...D.markers.keys()].forEach(id=>{ if(!keep.has(id)){ D.layer.removeLayer(D.markers.get(id)); D.markers.delete(id); } });
+}
+function dayOpenBuildingIds(){
+  const s=new Set();
+  D.stops.forEach(st=>{ if(st.done) return; const l=dayLoc(st); if(l.b) s.add(l.b.id); });
+  return s;
+}
+function dayPopup(id){
+  const st=D.stops.find(x=>x.id===id); if(!st||!M.map) return;
+  const loc=dayLoc(st); if(loc.lat==null) return;
+  const b=loc.b; const codes=b?(b.codes||[]):[];
+  const html=`<div class="dpop" dir="rtl">
+    <div class="dp-h">#${esc(st.no)} · ${esc(dayAddr(st))}</div>
+    ${st.city?`<div class="meta">${esc(st.city)}${S.pos?" · "+fmtDist(haversine(S.pos,loc)):""}</div>`:""}
+    ${st.info?`<div class="dp-info">${esc(st.info)}</div>`:""}
+    ${codes.length?`<div class="dp-codes">${codes.map(c=>`<button class="dp-code" data-copy="${esc(c.value)}">${esc(c.value)}</button>`).join("")}</div>`:`<div class="pc-none" style="color:var(--no)">אין קוד לבניין</div>`}
+    <div class="dp-btns">
+      <button class="btn small ${st.done?"":"primary"}" data-act="dayDone" data-id="${esc(st.id)}">${st.done?"בטל סימון":"✓ נמסר"}</button>
+      ${b?`<button class="btn small" data-act="dayOpenB" data-id="${esc(st.id)}">פתח בניין</button>`:""}
+      ${!codes.length?`<button class="btn small" data-act="dayAddCode" data-id="${esc(st.id)}">הוסף קוד</button>`:""}
+      <a class="btn small" href="https://waze.com/ul?ll=${loc.lat},${loc.lng}&navigate=yes" target="_blank" rel="noopener">וייז</a>
+    </div></div>`;
+  L.popup({closeButton:true, autoPan:true, className:"daypop", maxWidth:300, offset:[0,-6]}).setLatLng([loc.lat,loc.lng]).setContent(html).openOn(M.map);
+}
+function dayAct(act, el){
+  const st=D.stops.find(x=>x.id===(el&&el.dataset.id));
+  if(act==="dayOpenSheet") return openDaySheet();
+  if(act==="dayLoad") return dayLoadFromSheet();
+  if(act==="dayClear") return arm(el,"לחץ שוב כדי למחוק את רשימת היום",()=>{ D.stops=[]; daySave(); D.markers.forEach(m=>D.layer&&D.layer.removeLayer(m)); D.markers.clear(); closeSheet(); toast("רשימת היום נמחקה"); });
+  if(act==="daySide"){ S.sideTab=el.dataset.tab; mapSide(); return; }
+  if(act==="daySort"){ setDaySort(el.dataset.mode); mapSide(); return; }
+  if(!st) return;
+  if(act==="dayDone"){ st.done=!st.done; daySave();
+    if(st.news){ const nd=newsDoneGet(); st.news.forEach(id=>{ if(st.done) nd[id]=Date.now(); else delete nd[id]; }); newsDoneSet(nd); } if(M.map) M.map.closePopup(); mapUpdate(); toast(st.done?`#${st.no} סומן כנמסר`:`#${st.no} חזר לרשימה`);
+    if(st.done && DAY_SORT==="order" && !M.follow){ const n=nextInOrder(); const l=n?dayLoc(n):null; if(l&&l.lat!=null&&M.map) M.map.panTo([l.lat,l.lng]); } }
+  else if(act==="dayFocus"){ const l=dayLoc(st); if(l.lat!=null&&M.map){ M.follow=false; M.map.setView([l.lat,l.lng], Math.max(M.map.getZoom(),18)); dayPopup(st.id); mapToolbar(); } else toast("לכתובת הזו אין מיקום על המפה."); }
+  else if(act==="dayOpenB"){ const l=dayLoc(st); if(l.b){ if(M.map) M.map.closePopup(); openCard(l.b.id); } }
+  else if(act==="dayAddCode"){
+    if(M.map) M.map.closePopup();
+    const l=dayLoc(st);
+    if(l.b) openForm(l.b.id);
+    else { S.pendingLoc = l.lat!=null ? {lat:l.lat, lng:l.lng, geo:l.geo} : null; openForm(null,{street:st.street, num:st.num, city:st.city}); }
+  }
+}
+function openDaySheet(){
+  S.openId=null; S.stopOpen=null;
+  const sh=$("#sheet");
+  sh.innerHTML=`<div class="sheet-top"><button class="icon-btn" data-act="close" aria-label="סגור"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 6l12 12M18 6 6 18"/></svg></button><h2>משלוחים היום</h2></div>
+  <div class="sheet-body form">
+    <p class="help">הדבק את הרשימה שקיבלת, שורה לכל עצירה: <span class="kbd">17 | סנהדרין 5 | רמת גן</span>, ואפשר להוסיף פרטים בסוף: <span class="kbd">3 | עמק דותן 12 | מודיעין | ידיעות · ק׳ 2 ד׳ 5</span>. הרשימה נשמרת רק במכשיר הזה ונמחקת אוטומטית בסוף היום. בלי שמות ובלי טלפונים.</p>
+    <label class="f">רשימת העצירות<textarea class="inp" id="dayText" style="min-height:220px" placeholder="1 | סנהדרין 5 | רמת גן"></textarea></label>
+    <label class="f">עיר ברירת מחדל <span class="opt">(לשורות בלי עיר)</span><input class="inp" id="dayCity" value="${esc(S.city&&S.city!==NO_CITY?((cityList().find(c=>c.k===S.city)||{}).name||""):"")}"></label>
+    ${D.stops.length?`<div class="seg" style="grid-template-columns:1fr 1fr"><input type="radio" name="dayMode" id="dm_r" value="replace" checked><label for="dm_r">החלף את הרשימה (${D.stops.length})</label><input type="radio" name="dayMode" id="dm_a" value="add"><label for="dm_a">הוסף לרשימה</label></div>`:""}
+    <div class="f"><span style="font-weight:700;font-size:.9rem">הבא בתור</span>
+      <div class="seg" style="grid-template-columns:1fr 1fr"><input type="radio" name="daySortR" id="ds_o" value="order" ${DAY_SORT==="order"?"checked":""}><label for="ds_o">לפי הסדר ברשימה</label><input type="radio" name="daySortR" id="ds_d" value="dist" ${DAY_SORT!=="order"?"checked":""}><label for="ds_d">הכי קרוב אליי</label></div></div>
+    <div id="dayErr" class="meta" style="color:var(--no)" hidden></div>
+    <button class="btn primary block" type="button" data-act="dayLoad">טען למפה</button>
+    ${D.stops.length?`<button class="btn danger block" type="button" data-act="dayClear">מחק את רשימת היום</button>`:""}
+  </div>`;
+  sh.hidden=false; sh.scrollTop=0;
+}
+function dayLoadFromSheet(){
+  const list=parseRoute($("#dayText").value, $("#dayCity").value.trim());
+  if(!list.length){ const e=$("#dayErr"); e.textContent="לא נמצאו עצירות. כל שורה צריכה מספר, רחוב ומספר בית."; e.hidden=false; return; }
+  const mode=(document.querySelector('input[name="dayMode"]:checked')||{}).value||"replace";
+  setDaySort((document.querySelector('input[name="daySortR"]:checked')||{}).value||DAY_SORT);
+  if(mode==="replace"){ D.stops=list; if(D.layer){ D.layer.clearLayers(); } D.markers.clear(); }
+  else D.stops=D.stops.concat(list);
+  daySave(); closeSheet();
+  S.view="map"; S.sideTab="day"; render();
+  toast(`נטענו ${list.length} עצירות`);
+  geocodeDay();
+}
+function daySideHtml(){
+  const ref = S.pos || (M.map?(()=>{ const c=M.map.getCenter(); return {lat:c.lat,lng:c.lng}; })():null);
+  const rows=D.stops.map(st=>{ const loc=dayLoc(st); return {st, loc, d:(ref&&loc.lat!=null)?haversine(ref,loc):null}; });
+  const open=rows.filter(r=>!r.st.done).sort(DAY_SORT==="order" ? byNo : (a,b)=>(a.d==null)-(b.d==null) || (a.d||0)-(b.d||0) || byNo(a,b));
+  const done=rows.filter(r=>r.st.done);
+  const walk=S.pos?open.filter(r=>r.d!=null&&r.d<=150).length:0;
+  const row=r=>{ const codes=r.loc.b?(r.loc.b.codes||[]).map(c=>c.value).filter(Boolean):[];
+    return `<div class="ms-row day ${r.d!=null&&r.d<=150&&S.pos?"walk":""}">
+      <button class="ms-a" data-act="dayFocus" data-id="${esc(r.st.id)}" style="border:0;background:none;text-align:right;padding:0;color:inherit"><span>#${esc(r.st.no)} · ${esc(dayAddr(r.st))}</span>${r.st.info?`<small class="ms-info">${esc(r.st.info)}</small>`:""}<small>${r.d!=null?fmtDist(r.d):"אין מיקום"}${r.loc.geo==="approx"?" · משוער":""}</small></button>
+      ${codes.length?`<span class="cm">${esc(codes[0])}</span>`:`<span class="chip warn">אין קוד</span>`}
+      <button class="icon-btn" data-act="dayDone" data-id="${esc(r.st.id)}" aria-label="נמסר" style="width:40px;height:40px">✓</button></div>`; };
+  return `<div class="ms-head"><h3>משלוחים היום</h3><span class="meta">נותרו ${open.length} מתוך ${D.stops.length}</span></div>
+    <div class="filters" role="group" aria-label="מיון"><button data-act="daySort" data-mode="order" aria-pressed="${DAY_SORT==="order"}">לפי הסדר ברשימה</button><button data-act="daySort" data-mode="dist" aria-pressed="${DAY_SORT!=="order"}">לפי מרחק</button></div>
+    ${D.geoMsg?`<div class="meta">${esc(D.geoMsg)}</div>`:""}
+    ${S.pos?`<div class="meta"><b>${walk}</b> בטווח הליכה (150 מ׳) ממך</div>`:""}
+    <div class="ms-list">${open.map(row).join("")||`<div class="meta">הכל נמסר.</div>`}</div>
+    ${done.length?`<details><summary class="meta">בוצעו · ${done.length}</summary><div class="ms-list" style="margin-top:6px">${done.map(row).join("")}</div></details>`:""}
+    <div class="btn-row"><button class="btn small" data-act="dayOpenSheet">עדכון רשימה</button></div>`;
+}
+
+/* ---------- newspapers ---------- */
+const N={list:[], updated:0, showDone:true, plan:null};
+const NEWS_LS="bank_codes_news";
+const DAYS_HE=["א","ב","ג","ד","ה","ו","ש"];
+function newsLoadLocal(){ try{ const v=JSON.parse(localStorage.getItem(NEWS_LS)||"null"); if(v&&Array.isArray(v.list)){ N.list=v.list; N.updated=v.updated||0; newsMigrate(); } }catch(e){} }
+function newsMergeRemote(data){
+  if(data && Array.isArray(data.list) && (data.updated||0) > N.updated){
+    N.list=data.list; N.updated=data.updated||0; newsMigrate();
+    try{ localStorage.setItem(NEWS_LS, JSON.stringify({list:N.list, updated:N.updated})); }catch(e){}
+  }
+}
+function newsSave(){
+  N.updated=Date.now(); const body={list:N.list, updated:N.updated};
+  try{ localStorage.setItem(NEWS_LS, JSON.stringify(body)); }catch(e){}
+  if(sb&&UID){ store.queue("__news",{op:"u", data:body, v:Date.now()+Math.random()}); store.flush(); }
+}
+const NEWS_DONE=()=>"bank_codes_newsdone_"+dayKey();
+function newsDoneGet(){ try{ return JSON.parse(localStorage.getItem(NEWS_DONE())||"{}")||{}; }catch(e){ return {}; } }
+function newsDoneSet(o){
+  try{ localStorage.setItem(NEWS_DONE(), JSON.stringify(o));
+    Object.keys(localStorage).filter(k=>k.startsWith("bank_codes_newsdone_")&&k!==NEWS_DONE()).forEach(k=>localStorage.removeItem(k)); }catch(e){}
+}
+/* extra groups: subscribers that only go out when picked in "מה יוצא היום" */
+const DAY_GRP={"1":"לאישה","3":"נשים + פוסט לייט","5":"שישי"};
+/* groups that go out by default; the button turns them OFF ("בלי ...") */
+const GRP_DEFAULT_ON=["מכבים"];
+const grpOn=(g,x)=>GRP_DEFAULT_ON.includes(g) ? !x.includes(g) : x.includes(g);
+function grpFromText(t){
+  t=String(t||"").trim(); if(!t||/כל|יומי|הכל/.test(t)) return "";
+  if(/נשים|פוסט לייט/.test(t)) return "נשים + פוסט לייט";
+  if(/לאישה/.test(t)) return "לאישה";
+  const d=parseDays(t); if(d) return DAY_GRP[d]||"";
+  return t;
+}
+function newsFixGrp(s){
+  if(!s.grp && s.days && DAY_GRP[s.days]){ s.grp=DAY_GRP[s.days]; s.days=""; }
+  if(s.grp===undefined) s.grp="";
+  return s;
+}
+function newsMigrate(){ N.list.forEach(newsFixGrp); }
+function newsGrpList(){ const order=["מכבים","שישי","לאישה","נשים + פוסט לייט"]; const g=[...new Set(N.list.map(x=>x.grp).filter(Boolean))]; return g.sort((a,b)=>((order.indexOf(a)+1)||99)-((order.indexOf(b)+1)||99)); }
+const NEWS_X=()=>"bank_codes_newsextra_"+dayKey();
+function newsExtraGet(){ try{ return JSON.parse(localStorage.getItem(NEWS_X())||"[]")||[]; }catch(e){ return []; } }
+function newsExtraSet(a){ try{ localStorage.setItem(NEWS_X(), JSON.stringify(a)); Object.keys(localStorage).filter(k=>k.startsWith("bank_codes_newsextra_")&&k!==NEWS_X()).forEach(k=>localStorage.removeItem(k)); }catch(e){} }
+function parseDays(t){
+  t=String(t||"").trim();
+  if(!t||/כל|יומי|הכל/.test(t)) return "";
+  t=t.replace(/שישי/g,"ו").replace(/חמישי/g,"ה").replace(/רביעי/g,"ד").replace(/שלישי/g,"ג").replace(/שני/g,"ב").replace(/ראשון/g,"א").replace(/יום/g,"").replace(/בלבד/g,"").trim();
+  const r=t.match(/^([א-ו])['׳]?\s*[-–]\s*([א-ו])['׳]?$/);
+  if(r){ const a=DAYS_HE.indexOf(r[1]), b=DAYS_HE.indexOf(r[2]); if(a>=0&&b>=a) return Array.from({length:b-a+1},(_,i)=>a+i).join(""); }
+  if(/^[א-ו]['׳]?(\s*[,\s]\s*[א-ו]['׳]?)*$/.test(t)){
+    const ds=[...t.matchAll(/[א-ו]/g)].map(m=>DAYS_HE.indexOf(m[0]));
+    return [...new Set(ds)].sort().join("");
+  }
+  return "";
+}
+function daysLabel(d){ if(!d) return "כל יום"; if(d==="5") return "שישי בלבד"; return d.split("").map(i=>DAYS_HE[+i]+"׳").join(" "); }
+function parseFA(t){
+  t=String(t||""); let f="", a="";
+  const fm=t.match(/(?:קומה|ק['׳])\s*:?\s*(-?\d{1,2})/); if(fm) f=fm[1];
+  const am=t.match(/(?:דירה|ד['׳])\s*:?\s*(\d{1,4}[א-ת]?)/); if(am) a=am[1];
+  if(!fm&&!am){ const m=t.match(/^\s*(-?\d{1,2})\s*\/\s*(\d{1,4})\s*$/); if(m){ f=m[1]; a=m[2]; } else if(/^\s*\d{1,4}\s*$/.test(t)) a=t.trim(); }
+  return {floor:f, apt:a};
+}
+function parseDateHe(t){
+  const m=String(t||"").match(/(\d{1,2})[./](\d{1,2})(?:[./](\d{2,4}))?/); if(!m) return "";
+  const now=new Date(); let y=m[3]?(+m[3]<100?2000+(+m[3]):+m[3]):now.getFullYear();
+  let d=new Date(y, +m[2]-1, +m[1]);
+  if(!m[3] && d < new Date(now.getFullYear(), now.getMonth(), now.getDate()-1)) d=new Date(y+1, +m[2]-1, +m[1]);
+  return dayKey(d);
+}
+const fmtDateHe = iso => { const [y,m,d]=iso.split("-"); return `${+d}.${+m}`; };
+function splitNewsAddr(raw){
+  raw=String(raw||""); let ent="";
+  const em=raw.match(/כניסה\s*([א-ת0-9])/); if(em){ ent=em[1]; raw=raw.replace(em[0]," "); }
+  const a=splitAddr(raw.replace(/\s+/g," ").trim());
+  return {street:a.street, num:a.num, apt:a.apt, entrance:ent};
+}
+function parseNewsLine(p){
+  const a=splitNewsAddr(p[1]); const fa=parseFA(p[4]);
+  return {id:newId(), order:parseInt(p[0],10)||0, street:a.street, num:a.num, entrance:a.entrance, city:(p[2]||"").trim(),
+    paper:(p[3]||"").trim(), floor:fa.floor, apt:fa.apt||a.apt, days:grpFromText(p[5])?"":parseDays(p[5]), grp:grpFromText(p[5]), note:(p[6]||"").trim(), pausedUntil:""};
+}
+const newsLabel = s => `${s.street} ${s.num}${s.entrance?" כ׳ "+s.entrance:""}${s.apt?" ד׳ "+s.apt:""}${s.paper?" · "+s.paper:""}`;
+const ACT_RE=/^(הוסף|חדש|הסר|בוטל|ביטול|עצור|הקפאה|חזור|הערה|הזז|סימן|ימים|שם)$/;
+/* street walking patterns: one-way streets = odd numbers going up, then even numbers coming back down; פארן = from the end, numbers going down */
+const STREET_RULES=[[["נחל שניר","נחל עמוד","נחל גלים","נחל ציפור","נחל ציפורי","נחל חבר"],"oddUpEvenDown"],[["נחל פארן"],"down"]];
+function streetRank(street){
+  const r=STREET_RULES.find(([names])=>names.some(n=>normStreet(n)===normStreet(street)));
+  if(!r) return null;
+  if(r[1]==="down") return n=>-n;
+  return n=>n%2?n:100000-n;
+}
+function newsExportText(){
+  const log=nlogGet(); const keys=Object.keys(log).sort().slice(-7);
+  const t=x=>new Date(x).toLocaleTimeString("he-IL",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
+  const out=["נתוני מסלול עיתונים"];
+  keys.forEach(k=>{ const ev=log[k]||[]; if(!ev.length) return;
+    out.push("", "יום "+k+" · "+ev.length+" אישורים");
+    ev.forEach(e=>out.push([t(e.t), e.o, e.a, e.lat!=null?`${e.lat},${e.lng} ±${e.acc}`:"-"].join(" | ")));
+  });
+  return out.join("\n");
+}
+async function newsExport(){
+  const txt=newsExportText();
+  if(txt.split("\n").length<3){ toast("אין עדיין נתונים. הנתונים נשמרים כשמסמנים ✓ בזמן החלוקה."); return; }
+  try{ if(navigator.share){ await navigator.share({title:"נתוני מסלול", text:txt}); return; } }catch(e){ if(e&&e.name==="AbortError") return; }
+  try{ await navigator.clipboard.writeText(txt); toast("הועתק. הדבק בצ׳אט עם Claude."); }
+  catch(e){ const sh=$("#sheet"); S.openId=null; S.stopOpen=null;
+    sh.innerHTML=`<div class="sheet-top"><button class="icon-btn" data-act="close" aria-label="סגור">✕</button><h2>נתוני מסלול</h2></div><div class="sheet-body"><p class="help">סמן הכל והעתק.</p><textarea style="width:100%;min-height:60vh;direction:ltr" readonly>${esc(txt)}</textarea></div>`;
+    sh.hidden=false; }
+}
+function newsPlan(text, defCity){
+  const rows=String(text).split(/\r?\n/).map(l=>l.trim()).filter(Boolean).map(l=>l.split("|").map(x=>x.trim()));
+  const isUpdate=rows.some(r=>ACT_RE.test(r[0]));
+  if(!isUpdate){
+    const errors=[]; const list=[];
+    rows.forEach(r=>{ if(!/^\d+$/.test(r[0])||!r[1]){ errors.push(r.join(" | ")); return; }
+      const s=parseNewsLine(r); if(!s.city) s.city=defCity; if(!s.street||!s.num){ errors.push(r.join(" | ")); return; } list.push(s); });
+    list.sort((a,b)=>a.order-b.order); list.forEach((s,i)=>s.order=i+1);
+    return {mode:"full", list, summary:[`רשימה מלאה · ${list.length} מנויים`], errors};
+  }
+  let list=JSON.parse(JSON.stringify(N.list)); const summary=[], errors=[];
+  rows.forEach(r=>{
+    const act=r[0];
+    if(!ACT_RE.test(act)){ errors.push(r.join(" | ")+" (חסרה פעולה)"); return; }
+    if(/^(הוסף|חדש)$/.test(act)){
+      const s=parseNewsLine(r.slice(1)); if(!s.city) s.city=defCity;
+      if(!s.street||!s.num){ errors.push(r.join(" | ")); return; }
+      let pos=s.order>0?s.order:0;
+      if(!pos){
+        const same=list.map((x,i)=>({x,i})).filter(o=>streetEq(o.x.street,s.street)&&normNum(o.x.num)===normNum(s.num));
+        if(same.length){ const fl=parseInt(s.floor,10); const lower=same.filter(o=>!isNaN(fl)&&parseInt(o.x.floor,10)<=fl); pos=(lower.length?lower[lower.length-1].i:same[same.length-1].i)+2; }
+        else {
+          const n=parseInt(s.num,10);
+          const street=list.map((x,i)=>({x,i,n:parseInt(x.num,10)})).filter(o=>streetEq(o.x.street,s.street)&&!isNaN(o.n));
+          const rk=streetRank(s.street);
+          if(street.length && !isNaN(n) && rk){
+            const r0=rk(n); const after=street.filter(o=>rk(o.n)<=r0);
+            pos=after.length?after[after.length-1].i+2:street[0].i+1;
+          } else if(street.length && !isNaN(n)){
+            const best=street.reduce((a,b)=>Math.abs(b.n-n)<Math.abs(a.n-n)?b:a);
+            const grp=street.filter(o=>o.n===best.n);
+            pos=grp[grp.length-1].i+2;
+          } else pos=list.length+1;
+          if(!(street.length&&rk)) s.approx=true;
+        }
+      }
+      list.splice(Math.min(pos-1,list.length),0,s);
+      summary.push("נוסף: "+newsLabel(s)); return;
+    }
+    if(act==="הזז"){
+      const k=r.findIndex((x,i)=>i>0&&/^(לפני|אחרי)$/.test(x));
+      if(k<0){ errors.push(r.join(" | ")+" (חסר לפני/אחרי)"); return; }
+      const pick=parts=>{ const ad=splitNewsAddr(parts[0]); const f=parseFA(parts[1]);
+        return list.filter(x=>streetEq(x.street,ad.street)&&normNum(x.num)===normNum(ad.num)&&(!f.apt||normNum(x.apt)===normNum(f.apt))&&(!f.floor||String(x.floor)===String(f.floor))); };
+      const src=pick(r.slice(1,k)), tgt=pick(r.slice(k+1));
+      if(!src.length||!tgt.length){ errors.push(r.join(" | ")+" (כתובת לא נמצאה)"); return; }
+      list=list.filter(x=>!src.includes(x));
+      const t2=tgt.filter(x=>!src.includes(x)); if(!t2.length){ list=list.concat(src); errors.push(r.join(" | ")); return; }
+      const at = r[k]==="לפני" ? list.indexOf(t2[0]) : list.indexOf(t2[t2.length-1])+1;
+      list.splice(at,0,...src); src.forEach(x=>{ delete x.approx; });
+      summary.push(`הוזז: ${r[1]}${r[2]&&k>2?" "+r[2]:""} ${r[k]} ${r[k+1]}${r[k+2]?" "+r[k+2]:""}`); return;
+    }
+    if(act==="סימן"){
+      const ad=splitNewsAddr(r[1]); const txt=(r[2]||"").trim();
+      const m=list.filter(x=>streetEq(x.street,ad.street)&&normNum(x.num)===normNum(ad.num));
+      if(!m.length){ errors.push(r.join(" | ")+" (לא נמצא ברשימה)"); return; }
+      m.forEach(x=>{ x.mark=txt; }); summary.push(`סימן ${txt?"("+txt+")":"נמחק"}: ${r[1]}`); return;
+    }
+    const a=splitNewsAddr(r[1]); const fa=parseFA(r[2]);
+    let matches=list.filter(s=>streetEq(s.street,a.street)&&normNum(s.num)===normNum(a.num)&&(!fa.apt||normNum(s.apt)===normNum(fa.apt))&&(!fa.floor||s.floor===fa.floor));
+    const paperCol=r.slice(2).find(x=>x && matches.some(m=>m.paper===x));
+    if(paperCol) matches=matches.filter(m=>m.paper===paperCol);
+    if(!matches.length){ errors.push(r.join(" | ")+" (לא נמצא ברשימה)"); return; }
+    const sameCust=matches.every(m=>String(m.floor)===String(matches[0].floor)&&normNum(m.apt)===normNum(matches[0].apt));
+    if(act==="שם"){ const nm=(r[r.length-1]||"").trim(); matches.forEach(m=>{ m.name=nm; }); summary.push(`שם (${nm||"נמחק"}): `+matches.map(newsLabel).join(" / ")); return; }
+    if(matches.length>1 && (!sameCust || (!fa.apt && !fa.floor && matches.some(m=>m.apt)))){ errors.push(r.join(" | ")+" (יותר ממנוי אחד בכתובת — ציין דירה)"); return; }
+    if(/^(הסר|בוטל|ביטול)$/.test(act)){ list=list.filter(x=>!matches.includes(x)); matches.forEach(m=>summary.push("הוסר: "+newsLabel(m))); }
+    else if(/^(עצור|הקפאה)$/.test(act)){ const d=parseDateHe(r.slice(3).join(" ")); matches.forEach(m=>{ m.pausedUntil=d||"9999-12-31"; summary.push(`הוקפא${d?" עד "+fmtDateHe(d):""}: `+newsLabel(m)); }); }
+    else if(act==="חזור"){ matches.forEach(m=>{ m.pausedUntil=""; summary.push("חזר: "+newsLabel(m)); }); }
+    else if(act==="ימים"){ const d=parseDays(r[r.length-1]); matches.forEach(m=>{ m.days=d; summary.push(`ימים (${daysLabel(d)}): `+newsLabel(m)); }); }
+    else if(act==="הערה"){ const note=(r[paperCol&&r[3]===paperCol?4:3]||"").trim(); matches.forEach(m=>{ m.note=note; summary.push(`הערה ${note?"("+note+")":"נמחקה"}: `+newsLabel(m)); }); }
+  });
+  list.forEach((s,i)=>s.order=i+1);
+  return {mode:"update", list, summary, errors};
+}
+/* papers that don't come out on some days (0=Sunday) */
+const PAPER_DAYS={"גלובס":"12345","כלכליסט":"01234"};
+function paperDayOk(p,wd){ const k=Object.keys(PAPER_DAYS).find(n=>norm(n)===norm(p||"")); return !k || PAPER_DAYS[k].includes(String(wd)); }
+function newsToday(){
+  const d=new Date(), wd=d.getDay(), iso=dayKey(d);
+  if(wd===6) return [];
+  const x=newsExtraGet();
+  return N.list.filter(s=>(s.grp ? grpOn(s.grp,x) : (!s.days||s.days.includes(String(wd)))) && paperDayOk(s.paper,wd) && !(s.pausedUntil && iso<=s.pausedUntil));
+}
+function newsGroups(list){
+  const g=[];
+  list.forEach(s=>{ const last=g[g.length-1];
+    if(last && streetEq(last.street,s.street) && normNum(last.num)===normNum(s.num) && norm(last.entrance)===norm(s.entrance)) last.items.push(s);
+    else g.push({key:s.id, street:s.street, num:s.num, entrance:s.entrance, city:s.city, items:[s]}); });
+  return g;
+}
+const noteCls = n => /תיבה|תיבת דואר/.test(n) ? "box" : "special";
+function bagLabel(papers){
+  const both=papers.includes("ידיעות") && papers.includes("כלכליסט");
+  const out=both?["משולב"]:[];
+  papers.forEach(p=>{ if(both && (p==="ידיעות"||p==="כלכליסט")) return; if(!out.includes(p)) out.push(p); });
+  return out.join(" + ")||"?";
+}
+function newsCustomers(items){
+  const list=[];
+  items.forEach(s=>{
+    const c=list.find(x=>String(x.floor)===String(s.floor) && normNum(x.apt)===normNum(s.apt));
+    if(c) c.items.push(s); else list.push({floor:s.floor, apt:s.apt, items:[s]});
+  });
+  list.forEach(c=>{
+    c.ids=c.items.map(i=>i.id);
+    c.papers=c.items.map(i=>i.paper||"?");
+    c.bag=bagLabel(c.papers);
+    c.notes=[...new Set(c.items.flatMap(i=>i.note?i.note.split(" · ").map(x=>x.trim()).filter(Boolean):[]))];
+    c.fri=c.items.every(i=>i.grp==="שישי"||i.days==="5");
+    c.names=[...new Set(c.items.map(i=>i.name).filter(Boolean))].join(" · ");
+    c.grp=[...new Set(c.items.map(i=>i.grp).filter(Boolean))].join(" · ");
+    c.days=c.items.map(i=>i.days).find(d=>d&&d!=="5")||"";
+  });
+  return list;
+}
+function bagUnits(c){
+  const both=c.papers.includes("ידיעות") && c.papers.includes("כלכליסט");
+  const u=both?["משולב"]:[];
+  c.papers.forEach(p=>{ if(both && (p==="ידיעות"||p==="כלכליסט")) return; u.push(p); });
+  return u;
+}
+function bagCounts(customers){
+  const m={}; customers.forEach(c=>bagUnits(c).forEach(k=>{ m[k]=(m[k]||0)+1; }));
+  return Object.entries(m).sort((a,b)=>(b[0]==="משולב")-(a[0]==="משולב") || b[1]-a[1]);
+}
+const faLabel = c => [c.floor!==""&&c.floor!=null?"ק׳ "+c.floor:"", c.apt?"ד׳ "+c.apt:""].filter(Boolean).join(" · ");
+function noteChips(notes){ return notes.map(n=>`<span class="chip ${noteCls(n)}">${esc(n)}</span>`).join(""); }
+function viewNews(){
+  if(!N.list.length) return `<div class="empty"><h2>עדיין אין רשימת עיתונים</h2><p>הדבק את הרשימה המלאה פעם אחת. אחר כך מדביקים רק עדכונים, והרשימה נשארת.</p><button class="btn primary" data-act="newsUpdate">הדבק רשימה מלאה</button></div>`;
+  const d=new Date(), wd=d.getDay();
+  const dayName=["ראשון","שני","שלישי","רביעי","חמישי","שישי","שבת"][wd];
+  const menu=`<details class="news-menu"><summary>אפשרויות</summary><div class="btn-row">
+      <button class="btn small" data-act="newsUpdate">עדכון רשימה</button>
+      <button class="btn small" data-act="newsMap">פתח במפה</button>
+      <button class="btn small" data-act="newsToggleDone">${N.showDone?"הסתר מה שבוצע":"הצג מה שבוצע"}</button>
+      <button class="btn small" data-act="newsAdd">+ מנוי</button>
+      <button class="btn small" data-act="newsExport">ייצוא נתוני מסלול</button></div></details>`;
+  if(wd===6) return `<div class="news-top"><b>עיתונים · ${dayName}</b></div><div class="empty"><p>אין חלוקה בשבת.</p></div>${menu}`;
+  const today=newsToday(); const done=newsDoneGet();
+  const groups=newsGroups(today).map(g=>Object.assign(g,{cust:newsCustomers(g.items)}));
+  const allCust=groups.flatMap(g=>g.cust);
+  const isDone=c=>c.ids.every(id=>done[id]);
+  const leftCust=allCust.filter(c=>!isDone(c)).length;
+  const startedCount=allCust.length-leftCust;
+  const nextIdx=groups.findIndex(g=>g.cust.some(c=>!isDone(c)));
+  const nextG=nextIdx>=0?groups[nextIdx]:null;
+  const friOnly=wd===5?allCust.filter(c=>c.fri).length:0;
+  const paused=N.list.filter(s=>s.pausedUntil && dayKey(d)<=s.pausedUntil).length;
+  let html=`<div class="news-top"><b>עיתונים · ${dayName} ${d.getDate()}.${d.getMonth()+1}</b><span>נותרו <b>${leftCust}</b> מתוך ${allCust.length}</span></div>`;
+  const grps=newsGrpList(), xon=newsExtraGet();
+  if(grps.length) html+=`<div class="news-extra"><span class="meta">מה יוצא היום:</span>${grps.map(g=>{ const def=GRP_DEFAULT_ON.includes(g); const on=xon.includes(g); const n=N.list.filter(s=>s.grp===g).length; return `<button class="xg ${on?"on":""}" data-act="newsExtra" data-g="${esc(g)}" aria-pressed="${on}">${on?"✓ ":""}${def?"בלי ":""}${esc(g)} <small>${n}</small></button>`; }).join("")}</div>`;
+  if(nextG){
+    const b=findBuilding({street:nextG.street,num:nextG.num,city:nextG.city,entrance:nextG.entrance});
+    const codes=b?(b.codes||[]).map(c=>c.value).filter(Boolean):[];
+    const open=nextG.cust.filter(c=>!isDone(c));
+    const take=bagCounts(open);
+    html+=`<section class="upnext" aria-label="הבא בתור">
+      <div class="un-h"><span class="un-lbl">הבא</span></div>
+      <div class="un-addr">${esc(nextG.street)} ${esc(nextG.num)}${nextG.entrance?` <small>כניסה ${esc(nextG.entrance)}</small>`:""}</div>
+      ${codes.length?`<div class="un-codes">${codes.map(c=>`<button class="un-code" data-copy="${esc(c)}">${esc(c)}</button>`).join("")}</div>`:`<button class="un-addcode" data-act="newsCode" data-key="${esc(nextG.key)}">+ הוסף קוד לבניין</button>`}
+      ${b&&b.notes?`<div class="un-bnote">${esc(b.notes)}</div>`:""}
+      ${(()=>{ const m=[...new Set(nextG.items.map(i=>i.mark).filter(Boolean))]; return m.length?`<div class="un-mark">📍 ${esc(m.join(" · "))}</div>`:""; })()}
+      <div class="un-take"><span class="un-take-l">לקחת</span>${take.map(([k,v])=>`<span class="bag"><b>${v}</b> ${esc(k)}</span>`).join("")}</div>
+      <div class="un-list">${open.map(c=>`<div class="un-c">
+          <div class="un-c-main"><span class="un-fa">${esc(faLabel(c)||"—")}</span>${c.names?`<span class="nm">${esc(c.names)}</span>`:""}<span class="bag sm ${c.fri?"fri":""}">${esc(c.bag)}</span>${noteChips(c.notes)}</div>
+          ${open.length>1?`<button class="icon-btn news-ok" data-act="newsDoneC" data-ids="${esc(c.ids.join(","))}" aria-label="נמסר">✓</button>`:""}
+        </div>`).join("")}</div>
+      <button type="button" class="btn primary block un-go tapgo" data-key="${esc(nextG.key)}">✓ נמסר${open.length>1?" הכל":""} · לבא בתור</button>
+    </section>`;
+    const after=groups.slice(nextIdx+1).filter(g=>g.cust.some(c=>!isDone(c))).slice(0,2);
+    if(after.length) html+=`<div class="un-after"><span class="meta">אחר כך:</span>${after.map(g=>`<button class="un-a" data-act="newsJump" data-key="${esc(g.key)}">${esc(g.street)} ${esc(g.num)} · ${esc(bagCounts(g.cust.filter(c=>!isDone(c))).map(([k,v])=>v+" "+k).join(", "))}</button>`).join("")}</div>`;
+  } else html+=`<div class="upnext done-all"><div class="un-addr">הכל חולק להיום ✓</div></div>`;
+  const prep=bagCounts(allCust); const mesh=(prep.find(x=>x[0]==="משולב")||[0,0])[1];
+  html+=`<details class="news-load-d" ${startedCount?"":"open"}><summary>הכנה בבוקר · ${mesh} משולב</summary>
+    <div class="news-load">${prep.map(([k,v])=>`<span class="nl ${k==="משולב"?"mesh":""}"><b>${v}</b> ${esc(k)}</span>`).join("")}</div>
+    ${friOnly?`<div class="meta">כולל ${friOnly} מנויי שישי בלבד.</div>`:""}
+    <button class="btn small" data-act="newsLoad" style="margin-top:8px">סדר טעינה לפי המסלול</button></details>`;
+  html+=`<h3 class="news-sec">כל המסלול</h3>`;
+  groups.forEach(g=>{
+    const allDone=g.cust.every(isDone);
+    if(allDone && !N.showDone) return;
+    const b=findBuilding({street:g.street,num:g.num,city:g.city,entrance:g.entrance}); const codes=b?(b.codes||[]).map(c=>c.value).filter(Boolean):[];
+    const first=g.items[0].order, last=g.items[g.items.length-1].order;
+    html+=`<div class="news-g ${allDone?"done":""} ${nextG&&nextG.key===g.key?"next":""}" id="ng_${esc(g.key)}">
+      <div class="news-gh">
+        <div class="news-addr"><b>${esc(g.street)} ${esc(g.num)}${g.entrance?" כ׳ "+esc(g.entrance):""}</b></div>
+        ${codes.length?`<button class="cm" data-copy="${esc(codes[0])}">${esc(codes.join(" · "))}</button>`:""}
+        ${g.cust.length>1?`<button class="btn small" data-act="newsDoneG" data-key="${esc(g.key)}">${allDone?"בטל":"✓ הכל"}</button>`:""}
+      </div>
+      ${g.cust.filter(c=>N.showDone||!isDone(c)).map(c=>`<div class="news-i ${isDone(c)?"done":""} ${c.fri?"fri":""}">
+        <button class="news-i-main" data-act="newsEdit" data-id="${esc(c.items[0].id)}">
+          <span class="news-fa">${esc(faLabel(c)||"—")}</span>${c.names?`<span class="nm">${esc(c.names)}</span>`:""}
+          <span class="bag sm">${esc(c.bag)}</span>
+          ${noteChips(c.notes)}
+          ${c.days&&c.days!=="5"?`<span class="meta">${esc(daysLabel(c.days))}</span>`:""}
+          ${c.grp?`<span class="meta">${esc(c.grp)}</span>`:""}
+          ${c.items.some(i=>i.approx)?`<span class="chip warn">מקום בסדר משוער</span>`:""}
+        </button>
+        <button class="icon-btn news-ok" data-act="newsDoneC" data-ids="${esc(c.ids.join(","))}" aria-label="נמסר">${isDone(c)?"↺":"✓"}</button>
+      </div>`).join("")}
+    </div>`;
+  });
+  if(paused) html+=`<div class="meta">${paused} מנויים מוקפאים היום.</div>`;
+  html+=menu;
+  return html;
+}
+function newsSyncDay(){
+  const done=newsDoneGet(); let ch=false;
+  D.stops.forEach(st=>{ if(st.news){ const v=st.news.every(id=>done[id]); if(st.done!==v){ st.done=v; ch=true; } } });
+  if(ch){ daySave(); if(M.map) mapUpdate(); }
+}
+function openNewsSheet(){
+  S.openId=null; S.stopOpen=null; N.plan=null;
+  const sh=$("#sheet");
+  sh.innerHTML=`<div class="sheet-top"><button class="icon-btn" data-act="close" aria-label="סגור"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 6l12 12M18 6 6 18"/></svg></button><h2>עדכון רשימת עיתונים</h2></div>
+  <div class="sheet-body form">
+    <p class="help"><b>רשימה מלאה</b> (פעם ראשונה), שורה לכל מנוי לפי סדר החלוקה:<br><span class="kbd rtl">1 | עמק דותן 12 | מודיעין | ידיעות | ק׳ 2 ד׳ 5 | כל יום | בתיבה</span><br>
+    <b>עדכונים</b> (כל יום, רק מה שהשתנה):<br>
+    <span class="kbd rtl">הוסף | 14 | עמק דותן 20 | מודיעין | הארץ | ק׳ 1 ד׳ 2 | שישי |</span><br>
+    <span class="kbd rtl">הסר | עמק דותן 12 | ד׳ 5</span> · <span class="kbd rtl">עצור | עמק דותן 12 | ד׳ 5 | עד 30.10</span><br>
+    <span class="kbd rtl">חזור | עמק דותן 12 | ד׳ 5</span> · <span class="kbd rtl">הערה | עמק דותן 12 | ד׳ 5 | בתיבה</span><br>
+    <span class="kbd rtl">הזז | נחל שורק 46 | לפני | נחל קטלב 1</span></p>
+    <label class="f">הדבק כאן<textarea class="inp" id="newsText" style="min-height:200px"></textarea></label>
+    <label class="f">עיר ברירת מחדל<input class="inp" id="newsCity" value="${esc((N.list[0]&&N.list[0].city)||"מודיעין")}"></label>
+    <div id="newsPrev"></div>
+    <button class="btn primary block" type="button" data-act="newsPreview">בדוק</button>
+  </div>`;
+  sh.hidden=false; sh.scrollTop=0;
+}
+function newsPreview(){
+  const p=newsPlan($("#newsText").value, $("#newsCity").value.trim()); N.plan=p;
+  const box=$("#newsPrev");
+  if(!p.list.length && p.mode==="full"){ box.innerHTML=`<div class="banner"><div>לא נמצאו שורות תקינות.</div></div>`; return; }
+  box.innerHTML=`<div class="block"><h3>${p.mode==="full"?"החלפת כל הרשימה":"עדכונים"}</h3>
+    ${p.mode==="full"&&N.list.length?`<div class="meta" style="color:var(--no)">הרשימה הקיימת (${N.list.length}) תוחלף.</div>`:""}
+    <ul class="hist">${p.summary.map(x=>`<li><span>${esc(x)}</span></li>`).join("")}</ul>
+    ${p.errors.length?`<div class="meta" style="color:var(--no)"><b>${p.errors.length} שורות לא נקלטו:</b><br>${p.errors.map(esc).join("<br>")}</div>`:""}
+    <button class="btn primary block" type="button" data-act="newsApply" ${(p.summary.length&&(p.mode==="update"||p.list.length))?"":"disabled"}>אשר ושמור</button></div>`;
+}
+function openNewsEdit(id){
+  const s = id ? N.list.find(x=>x.id===id) : {id:"", order:N.list.length+1, street:"", num:"", entrance:"", city:(N.list[0]&&N.list[0].city)||"", paper:"", floor:"", apt:"", days:"", note:"", pausedUntil:""};
+  if(!s) return;
+  S.openId=null; S.stopOpen=null;
+  const papers=[...new Set(N.list.map(x=>x.paper).filter(Boolean))];
+  const sh=$("#sheet");
+  sh.innerHTML=`<div class="sheet-top"><button class="icon-btn" data-act="close" aria-label="סגור"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 6l12 12M18 6 6 18"/></svg></button><h2>${id?"עריכת מנוי":"מנוי חדש"}</h2></div>
+  <form class="sheet-body form" id="newsForm" data-id="${esc(s.id)}" novalidate>
+    <div class="f-row"><label class="f">רחוב<input class="inp" id="nf_street" value="${esc(s.street)}"></label><label class="f">מספר<input class="inp" id="nf_num" value="${esc(s.num)}"></label></div>
+    <div class="f-row3"><label class="f">כניסה<input class="inp" id="nf_ent" value="${esc(s.entrance)}"></label><label class="f">עיר<input class="inp" id="nf_city" value="${esc(s.city)}"></label></div>
+    <div class="f-row3"><label class="f">קומה<input class="inp" id="nf_floor" value="${esc(s.floor)}" inputmode="numeric"></label><label class="f">דירה<input class="inp" id="nf_apt" value="${esc(s.apt)}" inputmode="numeric"></label></div>
+    <div class="f-row3"><label class="f">עיתון<input class="inp" id="nf_paper" value="${esc(s.paper)}" list="paperList"></label><label class="f">מקום בסדר<input class="inp" id="nf_order" value="${esc(s.order)}" inputmode="numeric"></label></div>
+    <datalist id="paperList">${papers.map(p=>`<option value="${esc(p)}">`).join("")}</datalist>
+    <label class="f">ימים <span class="opt">(כל יום / שישי / א-ה / א,ג,ה)</span><input class="inp" id="nf_days" value="${esc(s.days?daysLabel(s.days):"כל יום")}"></label>
+    <label class="f">קבוצה <span class="opt">(ריק = רשימה רגילה · שישי / לאישה / נשים + פוסט לייט)</span><input class="inp" id="nf_grp" value="${esc(s.grp||"")}" list="grpList"></label>
+    <datalist id="grpList">${[...new Set(["שישי","לאישה","נשים + פוסט לייט"].concat(newsGrpList()))].map(g=>`<option value="${esc(g)}">`).join("")}</datalist>
+    <label class="f">שם המנוי <span class="opt">(להבדיל בין דירות בלי מספר)</span><input class="inp" id="nf_name" value="${esc(s.name||"")}"></label>
+    <label class="f">סימן שלי <span class="opt">(איך מזהים את הבית בלילה: שער ירוק, אחרי העמוד…)</span><input class="inp" id="nf_mark" value="${esc(s.mark||"")}"></label>
+    ${id?`<div class="mk-row"><button class="btn small" type="button" data-act="newsPin" data-id="${esc(s.id)}">📍 שמור מיקום כאן</button><span class="meta">${s.lat!=null?(s.geo==="gps"?"יש מיקום שמור"+(s.gacc?` (±${s.gacc} מ׳)`:""):"מיקום משוער"):"אין מיקום"}</span></div>`:""}
+    <label class="f">הערה <span class="opt">(בתיבה, בקשה מיוחדת)</span><input class="inp" id="nf_note" value="${esc(s.note)}"></label>
+    <label class="f">מוקפא עד <span class="opt">(ריק = פעיל)</span><input class="inp" id="nf_pause" type="date" value="${esc(s.pausedUntil&&s.pausedUntil!=="9999-12-31"?s.pausedUntil:"")}"></label>
+    <button class="btn primary block" type="submit">שמור</button>
+    ${id?`<button class="btn danger block" type="button" data-act="newsDelete" data-id="${esc(s.id)}">מחק מנוי</button>`:""}
+  </form>`;
+  sh.hidden=false; sh.scrollTop=0;
+}
+function submitNews(form){
+  const id=form.dataset.id;
+  const v=k=>$("#nf_"+k).value.trim();
+  if(!v("street")||!v("num")){ toast("צריך רחוב ומספר."); return; }
+  const rec={street:v("street"), num:v("num"), entrance:v("ent"), city:v("city"), floor:v("floor"), apt:v("apt"), paper:v("paper"), days:parseDays(v("days")), grp:v("grp"), name:v("name"), mark:v("mark"), note:v("note"), pausedUntil:v("pause")};
+  newsFixGrp(rec);
+  let list=N.list.slice();
+  let s=id?list.find(x=>x.id===id):null;
+  if(s){ Object.assign(s,rec); delete s.approx; list=list.filter(x=>x!==s); } else s=Object.assign({id:newId()},rec);
+  const pos=Math.max(1, Math.min(parseInt(v("order"),10)||list.length+1, list.length+1));
+  list.splice(pos-1,0,s); list.forEach((x,i)=>x.order=i+1);
+  list.forEach(x=>{ if(x!==s && streetEq(x.street,s.street)&&normNum(x.num)===normNum(s.num)&&norm(x.entrance)===norm(s.entrance)) x.mark=s.mark; });
+  N.list=list; newsSave(); closeSheet(); toast("נשמר");
+}
+/* tap-to-confirm on the up-next card: vibrate, green flash, then next card slides in */
+document.addEventListener("click",e=>{
+  const b=e.target.closest(".tapgo"); if(!b||b.disabled) return;
+  e.preventDefault(); e.stopPropagation(); b.disabled=true;
+  try{ navigator.vibrate&&navigator.vibrate(35); }catch(err){}
+  b.classList.add("ok"); const u=document.querySelector(".upnext"); if(u) u.classList.add("pulse");
+  setTimeout(()=>{ newsAct("newsDoneG",{dataset:{key:b.dataset.key}, classList:{contains:()=>true}}); const n=document.querySelector(".upnext"); if(n){ n.classList.remove("enter"); void n.offsetWidth; n.classList.add("enter"); } },220);
+}, true);
+function newsAct(act, el){
+  if(act==="newsUpdate") return openNewsSheet();
+  if(act==="newsPreview") return newsPreview();
+  if(act==="newsApply"){ if(!N.plan) return; N.list=N.plan.list; N.plan=null; newsSave(); closeSheet(); toast("הרשימה עודכנה"); return; }
+  if(act==="newsAdd") return openNewsEdit(null);
+  if(act==="newsEdit") return openNewsEdit(el.dataset.id);
+  if(act==="newsDelete") return arm(el,"לחץ שוב כדי למחוק",()=>{ N.list=N.list.filter(x=>x.id!==el.dataset.id); N.list.forEach((x,i)=>x.order=i+1); newsSave(); closeSheet(); toast("המנוי נמחק"); });
+  if(act==="newsToggleDone"){ N.showDone=!N.showDone; render(); return; }
+  if(act==="newsLock") return lockOn();
+  if(act==="newsLoad") return openLoadSheet();
+  if(act==="newsExport") return newsExport();
+  if(act==="newsPin"){
+    const it=N.list.find(x=>x.id===el.dataset.id); if(!it) return;
+    if(!S.pos || !S.posT || Date.now()-S.posT>15000){ startWatch(); toast("מחפש מיקום… לחץ שוב בעוד כמה שניות"); return; }
+    const acc=Math.round(S.pos.acc||0);
+    N.list.forEach(x=>{ if(streetEq(x.street,it.street)&&normNum(x.num)===normNum(it.num)&&norm(x.entrance)===norm(it.entrance)){ x.lat=S.pos.lat; x.lng=S.pos.lng; x.gacc=acc; x.geo="gps"; } });
+    newsSave(); toast(`המיקום נשמר (±${acc} מ׳)`); openNewsEdit(it.id); return;
+  }
+  if(act==="newsExtra"){ const g=el.dataset.g; let a=newsExtraGet(); a=a.includes(g)?a.filter(x=>x!==g):a.concat(g); newsExtraSet(a); render(); return; }
+  if(act==="newsLoadRev"){ S.loadRev=el.dataset.v==="1"; return openLoadSheet(); }
+  if(act==="newsDoneC"){ const d=newsDoneGet(); const ids=(el.dataset.ids||"").split(",").filter(Boolean); const all=ids.every(id=>d[id]); ids.forEach(id=>{ if(all) delete d[id]; else d[id]=Date.now(); }); newsDoneSet(d); if(!all) newsRecord(N.list.filter(x=>ids.includes(x.id))); newsSyncDay(); render(); return; }
+  if(act==="newsDone"){ const d=newsDoneGet(); const id=el.dataset.id; if(d[id]) delete d[id]; else d[id]=Date.now(); newsDoneSet(d); newsSyncDay(); render(); return; }
+  if(act==="newsDoneG"){ const g=newsGroups(newsToday()).find(x=>x.key===el.dataset.key); if(!g) return; const d=newsDoneGet(); const all=g.items.every(s=>d[s.id]); g.items.forEach(s=>{ if(all) delete d[s.id]; else d[s.id]=Date.now(); }); newsDoneSet(d); if(!all) newsRecord(g.items); newsSyncDay(); render(); if(!all && el.classList.contains("un-go")) window.scrollTo({top:0}); return; }
+  if(act==="newsJump"){ const e=document.getElementById("ng_"+el.dataset.key); if(e) e.scrollIntoView({block:"start", behavior:"smooth"}); return; }
+  if(act==="newsCode"){ const g=newsGroups(newsToday()).find(x=>x.key===el.dataset.key); if(!g) return; const b=findBuilding({street:g.street,num:g.num,city:g.city,entrance:g.entrance}); if(b) openForm(b.id); else openForm(null,{street:g.street,num:g.num,entrance:g.entrance,city:g.city}); return; }
+  if(act==="newsMap"){
+    const done=newsDoneGet();
+    D.stops=newsGroups(newsToday()).map(g=>({id:"n_"+g.key, no:String(g.items[0].order), street:g.street, num:g.num, city:g.city,
+      ...(()=>{ const w=g.items.find(i=>i.lat!=null); return w?{lat:w.lat,lng:w.lng,geo:"gps"}:{}; })(),
+      info:newsCustomers(g.items).map(c=>[c.bag, c.apt?"ד׳ "+c.apt:""].filter(Boolean).join(" ")).join(" · "), done:g.items.every(s=>done[s.id]), news:g.items.map(s=>s.id)}));
+    if(D.layer) D.layer.clearLayers(); D.markers.clear();
+    setDaySort("order"); daySave(); S.view="map"; S.sideTab="day"; render(); geocodeDay(); return;
+  }
+}
+
+/* ---------- newspapers: timing log, GPS pins, loading order, walking lock ---------- */
+const NLOG_KEY="bank_codes_newslog";
+function nlogGet(){ try{ return JSON.parse(localStorage.getItem(NLOG_KEY)||"{}")||{}; }catch(e){ return {}; } }
+function nlogSet(o){
+  try{ const keys=Object.keys(o).sort(); while(keys.length>21){ delete o[keys.shift()]; } localStorage.setItem(NLOG_KEY, JSON.stringify(o)); }catch(e){}
+}
+function newsRecord(items){
+  if(!items||!items.length) return;
+  const now=Date.now(); const s0=items[0];
+  const fresh = S.pos && S.posT && (now-S.posT)<20000;
+  const ev={t:now, a:`${s0.street} ${s0.num}${s0.entrance?" "+s0.entrance:""}`, o:s0.order};
+  if(fresh){ ev.lat=+S.pos.lat.toFixed(6); ev.lng=+S.pos.lng.toFixed(6); ev.acc=Math.round(S.pos.acc||0); }
+  const log=nlogGet(); const k=dayKey(); (log[k]=log[k]||[]).push(ev); nlogSet(log);
+  if(fresh && (S.pos.acc||999)<=40){
+    let ch=false;
+    N.list.forEach(x=>{
+      if(streetEq(x.street,s0.street)&&normNum(x.num)===normNum(s0.num)&&norm(x.entrance)===norm(s0.entrance)){
+        if(x.lat==null || x.gacc==null || S.pos.acc < x.gacc){ x.lat=S.pos.lat; x.lng=S.pos.lng; x.gacc=Math.round(S.pos.acc); x.geo="gps"; ch=true; }
+      }
+    });
+    if(ch) newsSave();
+  }
+}
+function openLoadSheet(){
+  S.openId=null; S.stopOpen=null;
+  const groups=newsGroups(newsToday());
+  const units=[];
+  groups.forEach(g=>newsCustomers(g.items).forEach(c=>bagUnits(c).forEach(u=>units.push({u, addr:`${g.street} ${g.num}`}))));
+  const runs=[];
+  units.forEach(x=>{ const r=runs[runs.length-1]; if(r && r.u===x.u){ r.n++; r.to=x.addr; } else runs.push({u:x.u, n:1, from:x.addr, to:x.addr}); });
+  const rev=!!S.loadRev; const list=rev?runs.slice().reverse():runs;
+  const sh=$("#sheet");
+  sh.innerHTML=`<div class="sheet-top"><button class="icon-btn" data-act="close" aria-label="סגור"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 6l12 12M18 6 6 18"/></svg></button><h2>סדר טעינה · ${units.length}</h2></div>
+  <div class="sheet-body">
+    <p class="help">ערימה אחת לפי סדר המסלול, בקבוצות של אותו עיתון ברצף. ב״סדר הנחה״ מתחילים מהקבוצה האחרונה, כך שהראשונה במסלול למעלה.</p>
+    <div class="seg" style="grid-template-columns:1fr 1fr"><input type="radio" name="lr" id="lr_s" ${rev?"checked":""}><label for="lr_s" data-act="newsLoadRev" data-v="1">סדר הנחה (מהסוף)</label><input type="radio" name="lr" id="lr_r" ${rev?"":"checked"}><label for="lr_r" data-act="newsLoadRev" data-v="0">סדר מסלול</label></div>
+    <div class="load-list">${list.map(r=>`<div class="load-r ${r.u==="משולב"?"mesh":""}"><span class="load-n">${r.n}</span><span class="load-u">${esc(r.u)}</span><span class="load-a">${esc(r.from)}${r.n>1&&r.to!==r.from?" ← "+esc(r.to):""}</span></div>`).join("")}</div>
+  </div>`;
+  sh.hidden=false; sh.scrollTop=0;
+}
+let lockWake=null, lockTimer=null;
+async function lockOn(){
+  const el=$("#walkLock"); el.hidden=false; lockRender();
+  try{ if(navigator.wakeLock) lockWake=await navigator.wakeLock.request("screen"); }catch(e){ lockWake=null; }
+  startWatch();
+}
+function lockOff(){ const el=$("#walkLock"); el.hidden=true; try{ lockWake&&lockWake.release(); }catch(e){} lockWake=null; render(); }
+function lockRender(){
+  const el=$("#walkLock"); if(!el||el.hidden) return;
+  const done=newsDoneGet();
+  const g=newsGroups(newsToday()).find(x=>x.items.some(s=>!done[s.id]));
+  let next="הכל חולק להיום";
+  if(g){ const b=findBuilding({street:g.street,num:g.num,city:g.city,entrance:g.entrance}); const code=b&&b.codes[0]?b.codes[0].value:"";
+    const open=newsCustomers(g.items).filter(c=>!c.ids.every(id=>done[id]));
+    next=`<div class="wl-n">#${g.items[0].order}</div><div class="wl-a">${esc(g.street)} ${esc(g.num)}</div>${code?`<div class="wl-c">${esc(code)}</div>`:""}<div class="wl-t">${esc(bagCounts(open).map(([k,v])=>v+" "+k).join(" · "))}</div>`; }
+  el.querySelector(".wl-next").innerHTML=next;
+}
+function lockWire(){
+  const el=$("#walkLock"); if(!el||el._w) return; el._w=true;
+  const btn=el.querySelector(".wl-btn");
+  const stop=e=>{ e.preventDefault(); e.stopPropagation(); };
+  ["click","touchstart","touchend","pointerdown","pointerup","contextmenu"].forEach(t=>el.addEventListener(t, e=>{ if(!btn.contains(e.target)) stop(e); }, {passive:false}));
+  const start=e=>{ stop(e); btn.classList.add("hold"); clearTimeout(lockTimer); lockTimer=setTimeout(()=>{ btn.classList.remove("hold"); lockOff(); }, 900); };
+  const end=e=>{ stop(e); btn.classList.remove("hold"); clearTimeout(lockTimer); };
+  btn.addEventListener("pointerdown", start); btn.addEventListener("pointerup", end); btn.addEventListener("pointerleave", end); btn.addEventListener("pointercancel", end);
+  document.addEventListener("visibilitychange", async ()=>{ if(document.visibilityState==="visible" && !el.hidden && !lockWake){ try{ if(navigator.wakeLock) lockWake=await navigator.wakeLock.request("screen"); }catch(e){} } });
+}
+
+/* ---------- automatic locations (OpenStreetMap) ---------- */
+const sleepMs=ms=>new Promise(r=>setTimeout(r,ms));
+async function geoLookup(it){
+  const city=it.city||"";
+  const tries=[
+    {street:`${it.num} ${it.street}`, city, country:"ישראל"},
+    {q:`${it.street} ${it.num}, ${city}, ישראל`}
+  ];
+  for(const t of tries){
+    const u=new URL("https://nominatim.openstreetmap.org/search");
+    Object.entries(t).forEach(([k,v])=>{ if(v) u.searchParams.set(k,v); });
+    u.searchParams.set("format","jsonv2"); u.searchParams.set("addressdetails","1"); u.searchParams.set("limit","1");
+    u.searchParams.set("countrycodes","il"); u.searchParams.set("accept-language","he");
+    const r=await fetch(u.toString(), {headers:{"Accept":"application/json"}});
+    if(r.status===429){ await sleepMs(5000); continue; }
+    if(!r.ok) throw new Error("http "+r.status);
+    const arr=await r.json(); await sleepMs(1100);
+    if(Array.isArray(arr)&&arr.length){
+      const x=arr[0], a=x.address||{};
+      const exact = !!a.house_number && String(a.house_number).replace(/\D/g,"")===String(it.num).replace(/\D/g,"");
+      return {lat:+x.lat, lng:+x.lon, geo: exact?"auto":"approx"};
+    }
+  }
+  return null;
+}
+async function geocodeAll(){
+  if(S.geoBusy) return;
+  const list=store.all().filter(i=>i.lat==null && i.street && i.num);
+  if(!list.length) return;
+  S.geoBusy=true; let found=0, approx=0, miss=0;
+  const upd=(i)=>{ S.geo=`${i} מתוך ${list.length} · נמצאו ${found}${approx?` (${approx} משוערים)`:""}${miss?` · לא נמצאו ${miss}`:""}`; const g=$("#geoProg"); if(g) g.textContent=S.geo; };
+  render(); upd(0);
+  for(let i=0;i<list.length;i++){
+    const it=list[i];
+    try{
+      const g=await geoLookup(it);
+      if(g){ const cur=store.get(it.id); if(cur && cur.lat==null){ await store.save(Object.assign({},cur,g)); found++; if(g.geo==="approx") approx++; } }
+      else miss++;
+    }catch(e){ miss++; await sleepMs(2000); }
+    upd(i+1);
+  }
+  S.geoBusy=false; render();
+  toast(`נמצאו מיקומים ל־${found} בניינים${miss?` · ${miss} לא נמצאו`:""}`);
+}
+
+/* ---------- sign in ---------- */
+function showSetupError(){
+  const a=$("#auth"); a.hidden=false;
+  a.innerHTML=`<div class="auth-box"><h1>DeliveryKai</h1><p class="help">חסרים פרטי החיבור לענן בקובץ config.js.</p></div>`;
+}
+function showAuth(msg){
+  const a=$("#auth"); a.hidden=false;
+  a.innerHTML=`<form class="auth-box form" id="authForm" novalidate>
+    <h1>DeliveryKai</h1>
+    <p class="help">כניסה עם אימייל וסיסמה. בפעם הראשונה לחץ ״יצירת חשבון״.</p>
+    <label class="f">אימייל<input class="inp" id="a_email" type="email" autocomplete="username" inputmode="email" dir="ltr"></label>
+    <label class="f">סיסמה<input class="inp" id="a_pass" type="password" autocomplete="current-password" dir="ltr"></label>
+    <div id="a_err" class="meta" style="color:var(--no)" ${msg?"":"hidden"}>${esc(msg||"")}</div>
+    <button class="btn primary block" type="submit" id="a_in">כניסה</button>
+    <button class="btn block" type="button" data-act="signUp">יצירת חשבון</button>
+  </form>`;
+}
+async function doAuth(kind){
+  const email=$("#a_email").value.trim(), password=$("#a_pass").value;
+  const err=$("#a_err");
+  if(!email||password.length<6){ err.textContent="צריך אימייל וסיסמה של 6 תווים לפחות."; err.hidden=false; return; }
+  err.hidden=true;
+  const res = kind==="up" ? await sb.auth.signUp({email,password}) : await sb.auth.signInWithPassword({email,password});
+  if(res.error){
+    const m=String(res.error.message||"");
+    err.textContent = /Invalid login/i.test(m) ? "אימייל או סיסמה לא נכונים." :
+      /not confirmed/i.test(m) ? "צריך לאשר את האימייל, או לכבות אישור אימייל בהגדרות." :
+      /already registered/i.test(m) ? "החשבון כבר קיים. לחץ כניסה." :
+      /signups? not allowed|disabled/i.test(m) ? "הרשמה סגורה. לחץ כניסה." : "שגיאה: "+m;
+    err.hidden=false; return;
+  }
+  if(!res.data.session){ err.textContent="נשלח אימייל לאישור. אשר אותו ואז לחץ כניסה."; err.hidden=false; return; }
+  UID=res.data.session.user.id; $("#who").textContent=res.data.session.user.email||"";
+  $("#auth").hidden=true; $("#auth").innerHTML="";
+  await store.load();
+  if(!store.map.size) toast("מחובר. ייבא את הגיבוי דרך עוד ← פתח ייבוא.");
+}
+async function signOut(){ if(sb) await sb.auth.signOut(); try{ localStorage.removeItem(LS_KEY); }catch(e){} location.reload(); }
+
+/* ---------- demo ---------- */
+const DEMO=[
+  {id:"demo1",street:"עמק דותן",num:"12",entrance:"ב",city:"מודיעין",codes:[{label:"שער",value:"1948#"},{label:"לובי",value:"2580"}],door:"ask",notes:"המעלית מאחורי תיבות הדואר",
+    residents:[{id:"d1a",floor:"1",apt:"2",name:"כהן",phone:"",door:"yes",notes:"",history:[{t:Date.now()-86400000,a:"door"}]},
+      {id:"d1b",floor:"3",apt:"9",name:"דנה",phone:"",door:"no",notes:"אם לא עונה — אצל השכנה בדירה 10",history:[]},
+      {id:"d1c",floor:"3",apt:"10",name:"יעל",phone:"",door:"yes",notes:"",history:[]}]},
+  {id:"demo2",street:"עמק החולה",num:"7",entrance:"",city:"מודיעין",codes:[{label:"לובי",value:"*4417"}],door:"yes",notes:"כל הבניין מאשר להשאיר ליד הדלת",residents:[]},
+  {id:"demo3",street:"אבני החושן",num:"30",entrance:"א",city:"מודיעין",codes:[],door:"ask",notes:"חניה מאחורי הבניין",
+    residents:[{id:"d3a",floor:"0",apt:"1",name:"משה",phone:"",door:"ask",notes:"",history:[]}]}
+].map(d=>Object.assign(normalize(d),{demo:true}));
+const isDemo = () => false;
+const items = () => isDemo() ? DEMO : store.all();
+const findItem = id => store.get(id) || DEMO.find(d=>d.id===id);
+
+/* ---------- filtering ---------- */
+const resHay = r => norm([r.name,r.phone,r.apt?"דירה "+r.apt:"",r.notes].join(" "));
+const allWords = (hay,q) => q.split(" ").every(w=>hay.includes(w));
+function buildingHay(it){ return norm([it.street,it.num,it.entrance,it.city,it.notes,(it.codes||[]).map(c=>c.value).join(" ")].join(" ")); }
+function matches(it, q){
+  if(!q) return true;
+  return allWords(buildingHay(it)+" "+(it.residents||[]).map(resHay).join(" "), q);
+}
+function residentHit(it, q){
+  if(!q || allWords(buildingHay(it),q)) return null;
+  const words=q.split(" ").filter(w=>!buildingHay(it).includes(w));
+  return (it.residents||[]).find(r=>words.every(w=>resHay(r).includes(w))) || null;
+}
+function sorted(list){
+  return list.slice().sort((a,b)=> norm(a.street).localeCompare(norm(b.street),"he") || numVal(a.num)-numVal(b.num) || norm(a.entrance).localeCompare(norm(b.entrance),"he"));
+}
+
+/* ---------- rendering ---------- */
+function itemRow(it, dist, q){
+  const codes=(it.codes||[]).map(c=>c.value).filter(Boolean);
+  const n=(it.residents||[]).length;
+  const hit=residentHit(it,q);
+  const bd=DOOR[it.door];
+  return `<button class="item" data-open="${esc(it.id)}"${hit?` data-rid="${esc(hit.id)}"`:""}>
+    <span class="addr">${esc(addrOf(it))}</span>
+    <span class="codes-mini ${codes.length?"":"none"}">${codes.length?esc(codes.join(" · ")):"אין קוד"}</span>
+    <span class="sub">
+      ${it.door!=="ask"?`<span class="chip ${bd.c}">כל הבניין: ${esc(bd.short)}</span>`:""}
+      <span>${n?n+" דיירים":"אין דיירים שמורים"}</span>
+      ${it.city?`<span>${esc(it.city)}</span>`:""}
+      ${dist!=null?`<span class="dist">${fmtDist(dist)}</span>`:""}
+      ${it.demo?`<span class="chip demo">דוגמה</span>`:""}
+    </span>
+    ${hit?`<span class="sub hit">← ${esc([hit.name,resLoc(hit)].filter(Boolean).join(" · "))}</span>`:""}</button>`;
+}
+function render(){
+  document.querySelectorAll("nav.bottom button").forEach(b=>b.setAttribute("aria-current", b.dataset.view===S.view?"page":"false"));
+  $("#searchWrap").hidden = !(S.view==="list"||S.view==="near"||S.view==="map");
+  const mapOn=S.view==="map";
+  $("#view").hidden=mapOn; $("#mapWrap").hidden=!mapOn;
+  try{ localStorage.setItem("bank_codes_view", S.view); }catch(e){}
+  if(mapOn){ layoutMap(); mapUpdate(); setTimeout(layoutMap,60); startWatch(); return; }
+  else if(S.view==="news"){ startWatch(); }
+  else if(M.watch!=null){ stopWatch(); }
+  const v=$("#view");
+  if(S.view==="today") v.innerHTML=viewToday();
+  else if(S.view==="list") v.innerHTML=viewList();
+  else if(S.view==="near") v.innerHTML=viewNear();
+  else if(S.view==="news") v.innerHTML=viewNews();
+  else if(S.view==="import") v.innerHTML=viewImport();
+  else if(S.view==="more"){ v.innerHTML=viewMore(); const w=$("#whoMore"); if(w) w.textContent=$("#who").textContent?("מחובר בתור "+$("#who").textContent):""; }
+}
+function demoBanner(){
+  return `<div class="banner"><div><b>אלה כתובות לדוגמה.</b> ייבא את בנק הקודים שלך או הוסף כתובת, והדוגמאות ייעלמו.</div>
+    <div class="row"><button class="btn small primary" data-go="import">ייבוא בנק הקודים</button><button class="btn small" data-act="hideDemo">הסתר דוגמאות</button></div></div>`;
+}
+/* ---------- city filter ---------- */
+const NO_CITY="__none";
+function cityList(){
+  const m=new Map();
+  items().forEach(it=>{ const k=norm(it.city)||NO_CITY; const e=m.get(k)||{k, name:it.city||"ללא עיר", n:0}; e.n++; m.set(k,e); });
+  return [...m.values()].sort((a,b)=> (a.k===NO_CITY)-(b.k===NO_CITY) || b.n-a.n);
+}
+function cityOk(it){ if(!S.city) return true; return (norm(it.city)||NO_CITY)===S.city; }
+function cityBar(){
+  const cs=cityList();
+  if(cs.length<2 && !S.city) return "";
+  if(S.city && !cs.some(c=>c.k===S.city)) S.city="";
+  let html=`<div class="filters" role="group" aria-label="סינון לפי עיר"><button data-city="" aria-pressed="${!S.city}">הכל</button>${cs.map(c=>`<button data-city="${esc(c.k)}" aria-pressed="${S.city===c.k}">${esc(c.name)} · ${c.n}</button>`).join("")}</div>`;
+  if(S.city===NO_CITY && !isDemo()){
+    const named=cs.filter(c=>c.k!==NO_CITY);
+    html+=`<div class="banner"><div><b>בניינים בלי עיר.</b> שייך את כולם לעיר אחת בלחיצה.</div>
+      <div class="row">${named.map(c=>`<button class="btn small" data-act="assignCity" data-name="${esc(c.name)}">העבר ל${esc(c.name)}</button>`).join("")}</div>
+      <div class="row"><input class="inp" id="newCity" placeholder="עיר אחרת, למשל מודיעין" style="flex:1;min-width:0"><button class="btn small primary" data-act="assignCity">העבר</button></div></div>`;
+  }
+  return html;
+}
+async function assignCity(name){
+  name=String(name||"").trim(); if(!name){ toast("הקלד שם עיר."); return; }
+  const list=store.all().filter(it=>!norm(it.city)).map(it=>Object.assign({},it,{city:name}));
+  if(!list.length) return;
+  S.city=norm(name); try{ localStorage.setItem("bank_codes_city",S.city); }catch(e){}
+  render(); toast(`מעביר ${list.length} בניינים ל${name}…`);
+  const failed=await store.bulk(list,()=>{});
+  render(); toast(failed.length?`${failed.length} לא נשמרו — נסה שוב.`:`${list.length} בניינים הועברו ל${name}`);
+}
+
+function viewList(){
+  const q=norm(S.q);
+  const all=items();
+  if(!all.length) return `<div class="empty"><h2>עדיין אין כתובות</h2><p>ייבא את הרשימה שלך מקובץ או מהדבקה, או הוסף כתובת ראשונה ידנית.</p>
+    <div class="btn-row"><button class="btn primary" data-go="import">ייבוא רשימה</button><button class="btn" data-go="add">הוספת כתובת</button></div></div>`;
+  let html = isDemo()?demoBanner():"";
+  html += cityBar();
+  const inCity=all.filter(cityOk);
+  const list=sorted(inCity.filter(it=>matches(it,q)));
+  html += `<div class="meta">${q? `${list.length} תוצאות` : `${inCity.length} בניינים`}</div>`;
+  if(!list.length) return html+`<div class="empty"><h2>לא נמצא</h2><p>אין בניין או דייר שמתאימים ל״${esc(S.q)}״.</p><button class="btn primary" data-act="addFromQuery">הוסף בניין חדש</button></div>`;
+  const LIMIT=250; let last=null;
+  list.slice(0,LIMIT).forEach(it=>{
+    const st=it.street||"ללא רחוב";
+    if(norm(st)!==last){ html+=`<div class="street-h">${esc(st)}</div>`; last=norm(st); }
+    html+=itemRow(it, S.pos&&it.lat!=null? haversine(S.pos,it):null, q);
+  });
+  if(list.length>LIMIT) html+=`<div class="meta">מוצגים ${LIMIT} מתוך ${list.length}. חפש רחוב כדי לצמצם.</div>`;
+  return html;
+}
+function viewNear(){
+  const q=norm(S.q);
+  let html=`<div class="drive ${S.drive?"on":""}"><div><b>מצב נסיעה</b><span class="meta">${S.drive?"כשתגיע לבניין שמור, הכרטיס שלו ייפתח לבד":"פותח את הכרטיס אוטומטית כשאתה מגיע לבניין"}</span></div>
+    <button class="switch" role="switch" aria-checked="${S.drive}" aria-label="מצב נסיעה" data-act="toggleDrive"></button></div>`;
+  if(S.posErr){
+    html+=`<div class="banner"><div><b>אין גישה למיקום.</b> ${esc(S.posErr)}</div><div class="row"><button class="btn small" data-act="locate">נסה שוב</button></div></div>`;
+  } else if(!S.pos){
+    return html+`<div class="empty"><h2>איפה אתה?</h2><p>האפליקציה תראה את הבניינים השמורים הכי קרובים אליך.</p><button class="btn primary" data-act="locate">הצג קרובים אליי</button></div>`;
+  } else {
+    html+=`<div class="meta">דיוק מיקום: ±${Math.round(S.pos.acc||0)} מ׳ · <button class="btn small" data-act="locate">רענן</button></div>`;
+  }
+  html+=cityBar();
+  const all=items().filter(cityOk);
+  const withLoc=all.filter(it=>it.lat!=null && it.lng!=null && matches(it,q));
+  const noLoc=all.filter(it=>it.lat==null).length;
+  if(S.pos && withLoc.length){
+    withLoc.map(it=>({it,d:haversine(S.pos,it)})).sort((a,b)=>a.d-b.d).slice(0,40).forEach(({it,d})=>html+=itemRow(it,d,q));
+  } else if(S.pos){
+    html+=`<div class="empty"><h2>אין עדיין בניינים עם מיקום</h2><p>בפעם הבאה שאתה ליד בניין, פתח את הכרטיס שלו ולחץ ״שמור מיקום כאן״. מאז האפליקציה תזהה אותו לבד.</p></div>`;
+  }
+  if(noLoc) html+=`<div class="meta">${noLoc} בניינים בלי מיקום שמור — עדיין אפשר למצוא אותם בחיפוש.</div>`;
+  return html;
+}
+function viewImport(){
+  const p=S.importPlan;
+  let html=`<div class="block"><h3>ייבוא</h3>
+    <p class="help">קובץ אקסל, קובץ טקסט מופרד בפסיקים, או הדבקה. כותרות כמו ״רחוב״, ״מספר״, ״כניסה״, ״קוד״, ״קומה״, ״דירה״, ״שם״, ״טלפון״, ״הערות״ מזוהות לבד. שורה עם שם, טלפון, קומה או דירה נוספת כדייר בתוך הבניין. בלי כותרות, כל שורה נקראת כטקסט חופשי:
+    <pre>עמק דותן 12 כניסה ב קוד 1948# לובי 2580
+עמק החולה 7 *4417 להשאיר ליד הדלת</pre></p>
+    <label class="f">קובץ<input class="inp" type="file" id="impFile" accept=".xlsx,.xls,.csv,.txt,.json,text/csv,text/plain"></label>
+    <label class="f">או הדבק כאן<textarea class="inp" id="impText" placeholder="שורה לכל בניין או דייר"></textarea></label>
+    <label class="f">עיר ברירת מחדל <span class="opt">(אם אין עמודת עיר)</span><input class="inp" id="impCity" placeholder="למשל מודיעין"></label>
+    <button class="btn primary block" data-act="parseImport">בדוק לפני ייבוא</button></div>`;
+  if(p){
+    html+=`<div class="block"><h3>תצוגה מקדימה</h3>
+      <div><b>${p.newCount}</b> בניינים חדשים · <b>${p.updCount}</b> יעודכנו · <b>${p.resCount}</b> דיירים${p.skipped?` · ${p.skipped} שורות דולגו (בלי רחוב)`:""}</div>
+      <div class="preview"><table><thead><tr><th></th><th>בניין</th><th>קודים</th><th>דיירים</th><th>הערות</th></tr></thead><tbody>
+      ${p.rows.slice(0,15).map(r=>`<tr><td><span class="tag ${r.isNew?"new":"upd"}">${r.isNew?"חדש":"עדכון"}</span></td><td>${esc(addrOf(r.item))}${r.item.city?`<br><span class="meta">${esc(r.item.city)}</span>`:""}</td><td class="c">${esc((r.item.codes||[]).map(c=>c.value).join(" · "))}</td><td>${esc(sortRes(r.item.residents).map(x=>[x.name,x.apt?"ד׳ "+x.apt:""].filter(Boolean).join(" ")).filter(Boolean).join(", "))}</td><td>${esc(r.item.notes)}</td></tr>`).join("")}
+      </tbody></table></div>
+      ${p.rows.length>15?`<div class="meta">ועוד ${p.rows.length-15} בניינים…</div>`:""}
+      <div class="progress" id="impProg" ${S.importBusy?"":"hidden"}><i></i></div>
+      <button class="btn primary block" data-act="runImport" ${S.importBusy||!p.rows.length?"disabled":""}>ייבא ${p.rows.length} בניינים</button></div>`;
+  }
+  return html;
+}
+function viewMore(){
+  const n=store.map.size;
+  const nr=store.all().reduce((s,i)=>s+(i.residents||[]).length,0);
+  const withLoc=store.all().filter(i=>i.lat!=null).length;
+  const approxN=store.all().filter(i=>i.lat!=null&&i.geo==="approx").length;
+  const resN=store.all().reduce((n,i)=>n+(i.residents||[]).length,0);
+  return `<div class="block"><h3>הנתונים שלך</h3>
+    <div>${n} בניינים · ${nr} דיירים · ${withLoc} עם מיקום שמור</div>
+    <p class="help">הקודים נשמרים בחשבון שלך ומסונכרנים בין הטלפון, הטאבלט והמחשב. גם בלי קליטה אפשר לעבוד, והשינויים יישלחו כשיחזור חיבור.</p></div>
+  <div class="block"><h3>ייבוא רשימת בניינים וקודים</h3>
+    <p class="help">מקובץ אקסל, טקסט או הדבקה. למשלוחים של היום השתמש בלשונית היום.</p>
+    <button class="btn" data-go="import">פתח ייבוא</button></div>
+  <div class="block"><h3>גיבוי</h3>
+    <div class="btn-row"><button class="btn" data-act="exportJson" ${n?"":"disabled"}>הורד גיבוי מלא</button><button class="btn" data-act="exportCsv" ${n?"":"disabled"}>הורד טבלה לאקסל</button></div>
+    <p class="help">הגיבוי המלא כולל דיירים, היסטוריה ומיקומים, ואפשר להחזיר אותו דרך מסך הייבוא. הטבלה נוחה לצפייה באקסל.</p></div>
+  <div class="block"><h3>פרטי לקוחות</h3>
+    <div>${resN} דיירים שמורים בבניינים</div>
+    <p class="help">מוחק שמות, טלפונים, קומות ודירות של לקוחות. הקודים, ההנחיות לכל הבניין וההערות על הבניין נשארים.</p>
+    <button class="btn danger" data-act="wipeResidents" ${resN?"":"disabled"}>מחק את כל פרטי הלקוחות</button></div>
+  <div class="block"><h3>מיקומים</h3>
+    <div>${withLoc} מתוך ${n} בניינים עם מיקום${approxN?` · ${approxN} משוערים`:""}</div>
+    <p class="help">מוצא מיקום לפי הכתובת לכל בניין שאין לו. בניין שנמצא רק לפי הרחוב מסומן כמשוער ולא נפתח לבד במצב נסיעה. כדי לדייק, לחץ ״שמור מיקום כאן״ כשאתה ליד הכניסה.</p>
+    <div id="geoProg" class="meta">${S.geo?esc(S.geo):""}</div>
+    <button class="btn primary" data-act="geocodeAll" ${(n-withLoc)&&!S.geoBusy?"":"disabled"}>${S.geoBusy?"מחפש…":`מצא מיקום ל־${n-withLoc} בניינים`}</button></div>
+  <div class="block"><h3>חשבון</h3>
+    <div class="meta" id="whoMore"></div>
+    <button class="btn" data-act="signOut">יציאה מהחשבון</button></div>
+  <div class="block"><h3>מחיקה</h3>
+    <button class="btn danger" data-act="wipe" ${n?"":"disabled"}>מחק את כל הנתונים</button></div>`;
+}
+
+/* ---------- building card ---------- */
+function openCard(id, rid, stopId){ S.stopOpen=null; S.openId=id; S.openRes=rid||null; S.resQ=""; S.curStop=stopId||null; refreshCard(); const sh=$("#sheet"); sh.hidden=false; sh.scrollTop=0;
+  if(rid) setTimeout(()=>{ const el=sh.querySelector(`[data-res="${CSS.escape(rid)}"]`); el&&el.scrollIntoView({block:"center"}); },30); }
+function closeSheet(){ S.pendingLoc=null; S.openId=null; S.openRes=null; S.curStop=null; S.stopOpen=null; S.linkStop=null; $("#sheet").hidden=true; $("#sheet").innerHTML=""; render(); }
+const backIcon=`<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m9 6 6 6-6 6"/></svg>`;
+const editIcon=`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20h4L19 9l-4-4L4 16v4z"/></svg>`;
+function logGrid(rid){ const a=rid?` data-rid="${esc(rid)}"`:"";
+  return `<div class="log-grid"><button class="btn" data-log="door"${a}>הושאר ליד הדלת</button><button class="btn" data-log="hand"${a}>נמסר ביד</button><button class="btn" data-log="neighbor"${a}>אצל שכן</button><button class="btn" data-log="noanswer"${a}>לא ענה</button></div>`; }
+function histList(h, n){ const list=(h||[]).slice().sort((a,b)=>b.t-a.t).slice(0,n);
+  return list.length?`<ul class="hist">${list.map(x=>`<li><span>${esc(ACTIONS[x.a]||x.a)}</span><time>${fmtTime(x.t)}</time></li>`).join("")}</ul>`:`<div class="meta">עוד לא נרשמו מסירות.</div>`; }
+function resItem(r, b){
+  const ed=effDoor(r,b), d=DOOR[ed.k], open=S.openRes===r.id, last=lastOf(r.history), loc=resLoc(r);
+  return `<div class="res ${open?"open":""}" data-res="${esc(r.id)}">
+    <button class="res-head" data-toggle="${esc(r.id)}" aria-expanded="${open}">
+      <span class="res-loc ${loc?"":"none"}">${loc?esc(loc):"בלי דירה"}</span>
+      <span class="res-name">${esc(r.name||"")}</span>
+      <span class="chip ${d.c}">${esc(d.short)}${ed.def?" ·בניין":""}</span>
+      ${(r.notes||last)?`<span class="res-last">${esc([r.notes?r.notes.split("\n")[0]:null, last?ACTIONS[last.a]+", "+fmtTime(last.t):null].filter(Boolean).join(" · "))}</span>`:""}
+    </button>
+    ${open?`<div class="res-body">
+      <div class="door ${d.c}"><div>${esc(d.t)}<small>${ed.def?"לפי ההנחיה של כל הבניין":ed.k==="ask"?"אין הנחיה שמורה לדייר הזה":"הנחיה של הדייר"}</small></div></div>
+      ${r.notes?`<div class="res-note">${esc(r.notes)}</div>`:""}
+      ${r.phone?`<div><div class="phone">${esc(r.phone)}</div><div class="btn-row" style="margin-top:6px"><button class="btn small" data-copy="${esc(r.phone)}">העתק מספר</button><a class="btn small" href="tel:${esc(r.phone.replace(/[^\d+]/g,""))}">חייג</a></div></div>`:""}
+      ${logGrid(r.id)}
+      ${curStopObj()&&curStopObj().rid===r.id?nextStopBtn():""}
+      ${histList(r.history,6)}
+      <button class="btn small" data-act="editRes" data-rid="${esc(r.id)}">${editIcon} עריכת דייר</button>
+    </div>`:""}</div>`;
+}
+function resListHtml(it){
+  const q=norm(S.resQ);
+  const list=sortRes(it.residents).filter(r=>!q||allWords(norm([r.name,r.phone,r.floor,r.apt,r.notes].join(" ")),q));
+  if(!it.residents.length) return `<div class="meta">אין דיירים שמורים בבניין הזה.</div>`;
+  if(!list.length) return `<div class="meta">אין דייר שמתאים לחיפוש.</div>`;
+  return list.map(r=>resItem(r,it)).join("");
+}
+function refreshCard(){
+  const it=findItem(S.openId); const sh=$("#sheet");
+  if(!it){ closeSheet(); return; }
+  const dist = S.pos&&it.lat!=null ? haversine(S.pos,it) : null;
+  const counts={yes:0,no:0,ask:0}; it.residents.forEach(r=>counts[effDoor(r,it).k]++);
+  const bd=DOOR[it.door];
+  sh.innerHTML=`<div class="sheet-top"><button class="icon-btn" data-act="close" aria-label="חזרה">${backIcon}</button>
+    <h2>${esc(addrOf(it))}</h2><button class="icon-btn" data-act="edit" aria-label="עריכת בניין">${editIcon}</button></div>
+  <div class="sheet-body">
+    ${stopBar()}
+    ${it.demo?`<div class="banner"><div><b>זה בניין לדוגמה.</b> פעולות כאן לא נשמרות.</div></div>`:""}
+    ${(it.city||dist!=null)?`<div class="meta">${esc([it.city, dist!=null?fmtDist(dist)+" ממך":null].filter(Boolean).join(" · "))}</div>`:""}
+    ${(it.codes||[]).length?`<div class="codes">${it.codes.map(c=>`<button class="code" data-copy="${esc(c.value)}"><span class="lbl">${esc(c.label||"קוד")}</span><span class="val">${esc(c.value)}</span><span class="hint">הקש להעתקה</span></button>`).join("")}</div>`
+      :`<div class="block"><h3>קודים</h3><div class="meta">אין קוד שמור. <button class="btn small" data-act="edit">הוסף קוד</button></div></div>`}
+    ${it.door!=="ask"?`<div class="door ${bd.c}"><div>כל הבניין: ${esc(bd.t)}<small>חל על כל דייר שאין לו הנחיה משלו</small></div></div>`:""}
+    ${it.notes?`<div class="block"><h3>על הבניין</h3><div class="notes">${esc(it.notes)}</div></div>`:""}
+    <div class="block">
+      <div class="sec-h"><h3>דיירים · ${it.residents.length}</h3><button class="btn small primary" data-act="addRes">+ דייר</button></div>
+      ${it.residents.length?`<div class="res-summary">${counts.yes?`<span class="chip yes">${counts.yes} ליד הדלת</span>`:""}${counts.no?`<span class="chip no">${counts.no} רק ביד</span>`:""}${counts.ask?`<span class="chip ask">${counts.ask} לא ידוע</span>`:""}</div>`:""}
+      ${it.residents.length>6?`<input class="inp" id="resQ" type="search" placeholder="חפש דייר, דירה או קומה" value="${esc(S.resQ)}" autocomplete="off">`:""}
+      <div class="res-list" id="resList">${resListHtml(it)}</div>
+    </div>
+    ${!it.residents.length?`<div class="block"><h3>רישום מסירה לבניין</h3>${logGrid("")}${histList(it.history,8)}</div>`:""}
+    <div class="block"><h3>מיקום הבניין</h3>
+      <div class="meta">${it.lat!=null?"מיקום שמור"+(dist!=null?" · "+fmtDist(dist)+" ממך":""):"אין מיקום שמור. עמוד ליד הכניסה ושמור, והאפליקציה תזהה את הבניין לבד."}</div>
+      <button class="btn" data-act="pinHere">${it.lat!=null?"עדכן למיקום הנוכחי":"שמור מיקום כאן"}</button></div>
+    ${nextStopBtn()}
+  </div>`;
+}
+function logAction(a, rid){
+  const it=findItem(S.openId); if(!it) return;
+  if(it.demo){ toast("זו דוגמה. הוסף בניין אמיתי כדי לשמור."); return; }
+  const entry={t:Date.now(), a};
+  const next=Object.assign({}, it);
+  if(rid){ next.residents=it.residents.map(r=>r.id===rid?Object.assign({},r,{history:[...(r.history||[]),entry].slice(-40)}):r); }
+  else next.history=[...(it.history||[]), entry].slice(-40);
+  store.save(next); refreshCard(); toast("נרשם: "+ACTIONS[a]);
+}
+
+/* ---------- forms ---------- */
+function doorSeg(cur, labels){
+  return `<div class="seg" role="radiogroup">${["yes","no","ask"].map(k=>`<input type="radio" name="door" id="door_${k}" value="${k}" ${(cur||"ask")===k?"checked":""}><label for="door_${k}">${labels[k]}</label>`).join("")}</div>`;
+}
+function openForm(id, preset){
+  const curCity = S.city && S.city!==NO_CITY ? ((cityList().find(c=>c.k===S.city)||{}).name||"") : "";
+  const it = id ? findItem(id) : Object.assign(normalize({}), {codes:[{label:"קוד",value:""}], city:curCity}, preset||{});
+  if(it.demo){ toast("זו דוגמה. הוסף בניין אמיתי."); return; }
+  S.openId=null; S.stopOpen=null;
+  const sh=$("#sheet");
+  const codes=(it.codes&&it.codes.length?it.codes:[{label:"קוד",value:""}]);
+  sh.innerHTML=`<div class="sheet-top"><button class="icon-btn" data-act="${id?"backToCard":"close"}" data-id="${esc(id||"")}" aria-label="ביטול"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    <h2>${id?"עריכת בניין":"בניין חדש"}</h2></div>
+  <form class="sheet-body form" id="form" data-kind="building" data-id="${esc(id||"")}" novalidate>
+    <div class="f-row"><label class="f">רחוב<input class="inp" id="f_street" value="${esc(it.street)}" autocomplete="off"></label>
+      <label class="f">מספר<input class="inp" id="f_num" value="${esc(it.num)}" inputmode="numeric"></label></div>
+    <div class="f-row3"><label class="f">כניסה <span class="opt">(רשות)</span><input class="inp" id="f_entrance" value="${esc(it.entrance)}"></label>
+      <label class="f">עיר <span class="opt">(רשות)</span><input class="inp" id="f_city" value="${esc(it.city)}"></label></div>
+    <div class="block"><h3>קודים</h3><div id="codeRows" style="display:grid;gap:8px">${codes.map(codeRow).join("")}</div>
+      <button type="button" class="btn small" data-act="addCode">הוסף קוד</button></div>
+    <div class="f"><span style="font-weight:700;font-size:.9rem">הנחיה לכל הבניין <span class="opt" style="font-weight:400;color:var(--muted)">(דייר עם הנחיה משלו גובר)</span></span>
+      ${doorSeg(it.door,{yes:"ליד הדלת",no:"רק ביד",ask:"אין"})}</div>
+    <label class="f">על הבניין <span class="opt">(חניה, מעלית, איפה הכניסה)</span><textarea class="inp" id="f_notes">${esc(it.notes)}</textarea></label>
+    <div id="formErr" class="meta" style="color:var(--no)" hidden></div>
+    <button class="btn primary block" type="submit">שמור</button>
+    ${id?`<button class="btn danger block" type="button" data-act="delete">מחק בניין</button>`:""}
+  </form>`;
+  sh.hidden=false; sh.scrollTop=0;
+  if(!id) setTimeout(()=>{ const f=$("#f_street"); if(f && !f.value) f.focus(); },50);
+}
+let codeRowSeq=0;
+function codeRow(c){
+  const n=++codeRowSeq;
+  return `<div class="code-row"><input class="inp" id="cl_${n}" aria-label="סוג קוד" value="${esc(c.label||"קוד")}" list="codeLabels">
+    <input class="inp code-inp" id="cv_${n}" aria-label="קוד" value="${esc(c.value||"")}" autocomplete="off">
+    <button type="button" class="icon-btn" data-act="rmCode" aria-label="הסר קוד">×</button></div>`;
+}
+function submitBuilding(form){
+  const id=form.dataset.id;
+  const street=$("#f_street").value.trim(), num=$("#f_num").value.trim();
+  if(!street||!num){ const e=$("#formErr"); e.textContent="צריך רחוב ומספר בית."; e.hidden=false; return; }
+  const codes=[...form.querySelectorAll(".code-row")].map(r=>{ const [l,v]=r.querySelectorAll("input"); return {label:l.value.trim()||"קוד", value:v.value.trim()}; }).filter(c=>c.value);
+  const base = id ? findItem(id) : normalize(Object.assign({id:newId()}, S.pendingLoc||{})); S.pendingLoc=null;
+  const it=Object.assign({}, base, {street, num, entrance:$("#f_entrance").value.trim(), city:$("#f_city").value.trim(),
+    codes, door:(form.querySelector('input[name="door"]:checked')||{}).value||"ask", notes:$("#f_notes").value.trim()});
+  if(!id){ const dup=store.all().find(x=>keyOf(x)===keyOf(it)); if(dup){
+    if(S.linkStop){ const st=today.stops.find(x=>x.id===S.linkStop); S.linkStop=null; const d2=Object.assign({},dup,{codes:[...dup.codes, ...codes.filter(c=>!dup.codes.some(x=>x.value===c.value))]}); store.save(d2); if(st){ st.bid=dup.id; today.save(); openStop(st.id); toast("נשמר"); return; } }
+    openCard(dup.id); toast("הבניין כבר קיים — פתחתי אותו."); return; } }
+  store.save(it); toast("נשמר");
+  if(S.linkStop){ const st=today.stops.find(x=>x.id===S.linkStop); S.linkStop=null; if(st){ st.bid=it.id; today.save(); openStop(st.id); return; } }
+  openCard(it.id);
+}
+function openResForm(bid, rid){
+  const b=findItem(bid); if(!b) return;
+  if(b.demo){ toast("זו דוגמה. הוסף בניין אמיתי."); return; }
+  const r = rid ? b.residents.find(x=>x.id===rid) : RES_DEFAULT();
+  if(!r) return;
+  S.openId=null; S.stopOpen=null;
+  const sh=$("#sheet");
+  sh.innerHTML=`<div class="sheet-top"><button class="icon-btn" data-act="backToCard" data-id="${esc(bid)}" data-rid="${esc(rid||"")}" aria-label="ביטול"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    <h2>${rid?"עריכת דייר":"דייר חדש"} · ${esc(addrOf(b))}</h2></div>
+  <form class="sheet-body form" id="form" data-kind="resident" data-bid="${esc(bid)}" data-rid="${esc(rid||"")}" novalidate>
+    <div class="f-row3"><label class="f">קומה<input class="inp" id="r_floor" value="${esc(r.floor)}" inputmode="numeric"></label>
+      <label class="f">דירה<input class="inp" id="r_apt" value="${esc(r.apt)}" inputmode="numeric"></label></div>
+    <label class="f">שם <span class="opt">(רשות)</span><input class="inp" id="r_name" value="${esc(r.name)}" autocomplete="off"></label>
+    <div class="f"><span style="font-weight:700;font-size:.9rem">להשאיר ליד הדלת?</span>
+      ${doorSeg(r.door,{yes:"כן, מותר",no:"רק ביד",ask:b.door!=="ask"?"כמו הבניין":"לא ידוע"})}</div>
+    <label class="f">מה לעשות <span class="opt">(רשות)</span><textarea class="inp" id="r_notes" placeholder="למשל: אם לא עונה — אצל השכן בדירה 10">${esc(r.notes)}</textarea></label>
+    <label class="f">טלפון <span class="opt">(רשות)</span><input class="inp code-inp" id="r_phone" type="tel" value="${esc(r.phone)}"></label>
+    <div id="formErr" class="meta" style="color:var(--no)" hidden></div>
+    <button class="btn primary block" type="submit">שמור</button>
+    ${rid?`<button class="btn danger block" type="button" data-act="deleteRes">מחק דייר</button>`:""}
+  </form>`;
+  sh.hidden=false; sh.scrollTop=0;
+  if(!rid) setTimeout(()=>{ const f=$("#r_floor"); f&&f.focus(); },50);
+}
+function submitResident(form){
+  const bid=form.dataset.bid, rid=form.dataset.rid;
+  const b=findItem(bid); if(!b) return;
+  const vals={floor:$("#r_floor").value.trim(), apt:$("#r_apt").value.trim(), name:$("#r_name").value.trim(), phone:$("#r_phone").value.trim(),
+    door:(form.querySelector('input[name="door"]:checked')||{}).value||"ask", notes:$("#r_notes").value.trim()};
+  if(!vals.apt && !vals.name && !vals.floor){ const e=$("#formErr"); e.textContent="צריך לפחות דירה, קומה או שם."; e.hidden=false; return; }
+  let residents, newRid=rid;
+  if(rid) residents=b.residents.map(r=>r.id===rid?Object.assign({},r,vals):r);
+  else { newRid=newId(); residents=[...b.residents, Object.assign(RES_DEFAULT(), vals, {id:newRid})]; }
+  store.save(Object.assign({}, b, {residents})); toast("נשמר"); openCard(bid, newRid);
+}
+
+/* ---------- location ---------- */
+function geoOk(){ return "geolocation" in navigator; }
+function onPos(p){
+  S.pos={lat:p.coords.latitude, lng:p.coords.longitude, acc:p.coords.accuracy}; S.posT=Date.now(); S.posErr=null;
+  if(S.drive) autoOpen();
+  if(S.openId) refreshCard(); else if(S.view==="near"||S.view==="list") render();
+}
+function onPosErr(e){
+  S.posErr = e && e.code===1 ? "הגישה למיקום חסומה. אפשר אותה בהגדרות הדפדפן, או פתח את האפליקציה כאתר עצמאי בטלפון." : "לא הצלחתי לקבל מיקום. בדוק שהמיקום פועל בטלפון.";
+  if(S.drive) stopDrive();
+  render();
+}
+function locate(){
+  if(!geoOk()){ onPosErr({code:1}); return; }
+  navigator.geolocation.getCurrentPosition(onPos, onPosErr, {enableHighAccuracy:true, timeout:12000, maximumAge:5000});
+}
+function autoOpen(){
+  if(!S.pos) return;
+  let best=null;
+  store.all().forEach(it=>{ if(it.lat==null || it.geo==="approx" || !cityOk(it)) return; const d=haversine(S.pos,it); if(!best||d<best.d) best={it,d}; });
+  if(S.lastAuto){ const la=store.get(S.lastAuto); if(!la || haversine(S.pos,la)>120) S.lastAuto=null; }
+  if(best && best.d<=40 && best.it.id!==S.lastAuto && S.openId!==best.it.id){
+    S.lastAuto=best.it.id; openCard(best.it.id);
+    try{ navigator.vibrate && navigator.vibrate([120,60,120]); }catch(e){}
+  }
+}
+async function startDrive(){
+  if(!geoOk()){ onPosErr({code:1}); return; }
+  S.drive=true; S.lastAuto=null;
+  S.watchId=navigator.geolocation.watchPosition(onPos, onPosErr, {enableHighAccuracy:true, maximumAge:3000, timeout:20000});
+  try{ if(navigator.wakeLock) S.wake=await navigator.wakeLock.request("screen"); }catch(e){ S.wake=null; }
+  render();
+}
+function stopDrive(){
+  S.drive=false;
+  if(S.watchId!=null){ try{ navigator.geolocation.clearWatch(S.watchId); }catch(e){} S.watchId=null; }
+  try{ S.wake && S.wake.release(); }catch(e){} S.wake=null;
+  render();
+}
+function pinHere(){
+  const it=findItem(S.openId); if(!it) return;
+  if(it.demo){ toast("זו דוגמה. הוסף בניין אמיתי כדי לשמור."); return; }
+  if(!geoOk()){ toast("אין גישה למיקום במכשיר הזה."); return; }
+  toast("מאתר מיקום…");
+  navigator.geolocation.getCurrentPosition(p=>{
+    const cur=findItem(S.openId); if(!cur) return;
+    store.save(Object.assign({},cur,{lat:p.coords.latitude,lng:p.coords.longitude,geo:"gps"}));
+    onPos(p);
+    toast(p.coords.accuracy>60 ? "המיקום לא מדויק (±"+Math.round(p.coords.accuracy)+" מ׳). נשמר בכל זאת — עדיף לעדכן בחוץ ליד הכניסה." : "המיקום נשמר");
+  }, e=>{ onPosErr(e); toast(S.posErr); }, {enableHighAccuracy:true, timeout:15000, maximumAge:0});
+}
+
+/* ---------- import ---------- */
+const CODE_LABELS="קוד|שער|לובי|דלת|חניה|חניון|בניין|מעלית|קומה";
+function doorFromText(t){
+  const s=norm(t);
+  if(/לא להשאיר|רק ביד|למסור ביד|מסירה ביד|לא ליד הדלת/.test(s)) return "no";
+  if(/להשאיר ליד|ליד הדלת|מותר להשאיר|אפשר להשאיר|על הדלת/.test(s)) return "yes";
+  return "";
+}
+function parseLine(raw){
+  let s=" "+String(raw).replace(/[\t;,|]+/g," ")+" ";
+  const it={street:"",num:"",entrance:"",city:"",codes:[],door:"",name:"",phone:"",floor:"",apt:"",notes:""};
+  const ph=s.match(/(?:\+972[-\s]?|0)5\d[-\s]?\d{3}[-\s]?\d{4}/);
+  if(ph){ it.phone=ph[0].replace(/[\s-]/g,""); s=s.replace(ph[0]," "); }
+  const en=s.match(/(?:כניסה|כנ['׳])\s*([א-ת]|\d{1,2})(?=\s)/);
+  if(en){ it.entrance=en[1]; s=s.replace(en[0]," "); }
+  const am=s.match(/^\s*(?:רח['׳]?\s+|רחוב\s+)?([^\d*#]+?)\s+(\d{1,4}[א-ת]?)(?:\s*\/\s*([א-ת0-9]))?(?=\s)/);
+  if(am){ it.street=am[1].trim(); it.num=am[2]; if(am[3]&&!it.entrance) it.entrance=am[3]; s=" "+s.slice(am.index+am[0].length)+" "; }
+  const ap=s.match(/(?:דירה|ד['׳])\s*(\d{1,4})(?=\s)/); if(ap){ it.apt=ap[1]; s=s.replace(ap[0]," "); }
+  const fl=s.match(/(?:קומה|ק['׳])\s*(-?\d{1,2})(?=\s)/); if(fl){ it.floor=fl[1]; s=s.replace(fl[0]," "); }
+  const re=new RegExp("(?:("+CODE_LABELS+")\\s*[:\\-]?\\s*)?([*#]?\\d[\\d*#]{2,9})(?=\\s)","g");
+  s=s.replace(re,(m,label,val)=>{ it.codes.push({label:label||"קוד", value:val}); return " "; });
+  it.door=doorFromText(s);
+  it.notes=s.replace(new RegExp("(^|\\s)("+CODE_LABELS+")(?=\\s|$)","g")," ").replace(/\s*[:\-]\s*$/,"").replace(/\s+/g," ").trim();
+  return it;
+}
+function mapHeader(h){
+  const s=norm(h);
+  if(!s) return null;
+  if(/קוד|code|סיסמ/.test(s)) return "code";
+  if(/טלפון|נייד|פלאפון|phone|tel/.test(s)) return "phone";
+  if(/להשאיר|השאר|door/.test(s)) return "door";
+  if(/כניסה|entrance/.test(s)) return "entrance";
+  if(/קומה|floor/.test(s)) return "floor";
+  if(/דירה|apt|apartment/.test(s)) return "apt";
+  if(/עיר|ישוב|יישוב|city/.test(s)) return "city";
+  if(/הער|note|מה לעשות/.test(s)) return "notes";
+  if(/רחוב|כתובת|street|address/.test(s)) return "street";
+  if(/מספר|^מס$|בית|number|^no$/.test(s)) return "num";
+  if(/שם|name|לקוח|דייר/.test(s)) return "name";
+  return null;
+}
+function parseCSV(text, delim){
+  const rows=[]; let row=[], cell="", q=false;
+  for(let i=0;i<text.length;i++){ const c=text[i];
+    if(q){ if(c==='"'){ if(text[i+1]==='"'){ cell+='"'; i++; } else q=false; } else cell+=c; }
+    else if(c==='"') q=true;
+    else if(c===delim){ row.push(cell); cell=""; }
+    else if(c==="\n"){ row.push(cell); rows.push(row); row=[]; cell=""; }
+    else if(c!=="\r") cell+=c; }
+  if(cell!==""||row.length){ row.push(cell); rows.push(row); }
+  return rows;
+}
+function rowsFromText(text){
+  const lines=text.split(/\r?\n/).filter(l=>l.trim());
+  if(!lines.length) return [];
+  const tabs=lines.filter(l=>l.includes("\t")).length;
+  if(tabs>=Math.max(1,lines.length*0.6)) return parseCSV(text,"\t");
+  const first=lines[0];
+  if(first.includes(",") && first.split(",").some(h=>mapHeader(h))) return parseCSV(text,",");
+  return lines.map(l=>[l]);
+}
+function itemsFromRows(rows, defCity){
+  rows=rows.filter(r=>r && r.some(c=>String(c??"").trim()));
+  if(!rows.length) return [];
+  const head=rows[0].map(mapHeader);
+  const hasHeader = rows[0].length>1 && (head.includes("street")||head.includes("code"));
+  const out=[];
+  if(hasHeader){
+    rows.slice(1).forEach(r=>{
+      const it={street:"",num:"",entrance:"",city:"",codes:[],door:"",name:"",phone:"",floor:"",apt:"",notes:""};
+      head.forEach((k,i)=>{ const v=String(r[i]??"").trim(); if(!v||!k) return;
+        if(k==="code") it.codes.push({label:String(rows[0][i]).trim().replace(/^קוד\s*/,"")||"קוד", value:v});
+        else if(k==="door"){ const n=norm(v); it.door=/^(לא|no|0|false|x)$|לא /.test(n)?"no":/^(כן|v|yes|1|true|✓|מותר)/.test(n)?"yes":doorFromText(v); }
+        else it[k]= it[k] ? it[k]+" "+v : v; });
+      if(it.street && !it.num && /\d/.test(it.street)){ const p=parseLine(it.street); it.street=p.street||it.street; it.num=p.num; if(!it.entrance) it.entrance=p.entrance; }
+      if(!it.door) it.door=doorFromText(it.notes);
+      out.push(it);
+    });
+  } else rows.forEach(r=>out.push(parseLine(r.join(" "))));
+  out.forEach(it=>{ if(!it.city && defCity) it.city=defCity; });
+  return out.map(rowToPart);
+}
+function rowToPart(r){
+  const b={street:r.street,num:r.num,entrance:r.entrance,city:r.city,codes:r.codes||[],door:"",notes:""};
+  const residents=[];
+  if(r.name||r.phone||r.apt||r.floor) residents.push(Object.assign(RES_DEFAULT(),{floor:r.floor||"",apt:r.apt||"",name:r.name||"",phone:r.phone||"",door:r.door||"ask",notes:r.notes||""}));
+  else { b.door=r.door||""; b.notes=r.notes||""; }
+  return {b, residents};
+}
+function fromBackup(text){
+  try{ const arr=JSON.parse(text); if(!Array.isArray(arr)) return [];
+    return arr.filter(x=>x&&x.street).map(x=>{ const n=normalize(Object.assign({}, x, {id:"tmp"}));
+      return {b:{street:n.street,num:n.num,entrance:n.entrance,city:n.city,codes:n.codes.filter(c=>c&&c.value),door:n.door==="ask"?"":n.door,notes:n.notes,
+        lat:typeof n.lat==="number"?n.lat:undefined,lng:typeof n.lng==="number"?n.lng:undefined,history:n.history},
+        residents:n.residents.map(r=>{ const c=Object.assign({},r); delete c.id; return c; })}; });
+  }catch(e){ toast("קובץ הגיבוי לא תקין."); return []; }
+}
+function decodeText(buf){
+  try{ return new TextDecoder("utf-8",{fatal:true}).decode(buf).replace(/^﻿/,""); }
+  catch(e){ try{ return new TextDecoder("windows-1255").decode(buf); }catch(e2){ return new TextDecoder().decode(buf); } }
+}
+function loadXLSX(){
+  if(window.XLSX) return Promise.resolve(window.XLSX);
+  return new Promise((res,rej)=>{ const s=document.createElement("script");
+    s.src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js";
+    s.onload=()=>res(window.XLSX); s.onerror=()=>rej(new Error("load")); document.head.appendChild(s); });
+}
+function mergeResident(list, r){
+  const m=list.find(x=> (r.apt && x.apt===r.apt && (!r.floor||!x.floor||x.floor===r.floor) && (!r.name||!x.name||x.name===r.name))
+    || (r.phone && x.phone===r.phone) || (!r.apt && r.name && x.name===r.name && !x.apt));
+  if(!m){ list.push(Object.assign(RES_DEFAULT(), r, {id:newId()})); return 1; }
+  ["floor","apt","name","phone"].forEach(f=>{ if(!m[f] && r[f]) m[f]=r[f]; });
+  if(r.door && r.door!=="ask") m.door=r.door;
+  if(r.notes && !String(m.notes||"").includes(r.notes)) m.notes=[m.notes,r.notes].filter(Boolean).join("\n");
+  if(r.history && r.history.length) m.history=[...(m.history||[]), ...r.history].slice(-40);
+  return 0;
+}
+async function buildPlan(){
+  const file=$("#impFile").files[0], pasted=$("#impText").value, defCity=$("#impCity").value.trim();
+  if(!file && !pasted.trim()){ toast("בחר קובץ או הדבק רשימה."); return; }
+  let parts=[];
+  if(file){
+    const buf=await file.arrayBuffer();
+    if(/\.xlsx?$/i.test(file.name)){
+      let X; try{ X=await loadXLSX(); }catch(e){ toast("לא הצלחתי לפתוח קובץ אקסל. שמור אותו כקובץ מופרד בפסיקים ונסה שוב."); return; }
+      const wb=X.read(new Uint8Array(buf),{type:"array"});
+      wb.SheetNames.forEach(n=>{ parts=parts.concat(itemsFromRows(X.utils.sheet_to_json(wb.Sheets[n],{header:1,raw:false,defval:""}), defCity)); });
+    } else {
+      const text=decodeText(buf);
+      parts = /^\s*\[/.test(text) ? fromBackup(text) : itemsFromRows(rowsFromText(text), defCity);
+    }
+  }
+  if(pasted.trim()) parts = parts.concat(/^\s*\[/.test(pasted) ? fromBackup(pasted) : itemsFromRows(rowsFromText(pasted), defCity));
+  const existing=new Map(store.all().map(it=>[keyOf(it),it]));
+  const planned=new Map(); let skipped=0, resCount=0;
+  parts.forEach(({b,residents})=>{
+    if(!b.street){ skipped++; return; }
+    const k=keyOf(b);
+    let entry=planned.get(k);
+    if(!entry){
+      const ex=existing.get(k);
+      entry = ex ? {item:JSON.parse(JSON.stringify(ex)), isNew:false} : {item:normalize({id:newId(), street:b.street, num:b.num, entrance:b.entrance, city:b.city}), isNew:true};
+      planned.set(k,entry);
+    }
+    const it=entry.item;
+    ["num","entrance","city"].forEach(f=>{ if(!it[f] && b[f]) it[f]=b[f]; });
+    const vals=new Set(it.codes.map(c=>c.value));
+    (b.codes||[]).forEach(c=>{ if(!vals.has(c.value)){ it.codes.push({label:c.label||"קוד", value:c.value}); vals.add(c.value); } });
+    if(b.door) it.door=b.door;
+    if(b.notes && !String(it.notes||"").includes(b.notes)) it.notes=[it.notes,b.notes].filter(Boolean).join("\n");
+    if(b.lat!=null && it.lat==null){ it.lat=b.lat; it.lng=b.lng; }
+    if(b.history && b.history.length) it.history=[...it.history, ...b.history].slice(-40);
+    residents.forEach(r=>{ resCount+=mergeResident(it.residents, r); });
+  });
+  const rows=[...planned.values()];
+  S.importPlan={rows, newCount:rows.filter(r=>r.isNew).length, updCount:rows.filter(r=>!r.isNew).length, resCount, skipped};
+  render();
+}
+async function runImport(){
+  const p=S.importPlan; if(!p||S.importBusy) return;
+  S.importBusy=true; render();
+  const list=p.rows.map(r=>r.item); const total=list.length;
+  const failed = await store.bulk(list, done=>{ const bar=$("#impProg i"); if(bar) bar.style.width=Math.round(done/total*100)+"%"; });
+  S.importBusy=false;
+  if(failed.length){
+    failed.forEach(it=>{ const r=p.rows.find(x=>x.item.id===it.id); if(r && r.isNew) store.map.delete(it.id); });
+    store.cache();
+    p.rows=p.rows.filter(r=>failed.some(f=>f.id===r.item.id));
+    p.newCount=p.rows.filter(r=>r.isNew).length; p.updCount=p.rows.length-p.newCount;
+    render();
+    toast(`נשמרו ${total-failed.length} מתוך ${total}. ${failed.length} לא נשמרו — לחץ שוב על ייבא.`);
+    return;
+  }
+  S.importPlan=null; S.view="list"; S.q="";
+  $("#q").value=""; $("#qClear").hidden=true; render(); toast(`נשמרו כל ${total} הבניינים`);
+}
+
+/* ---------- export ---------- */
+function saveFile(filename, data, type){
+  const blob=new Blob([data],{type}); const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob); a.download=filename; document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },1500);
+}
+function exportCsv(){
+  const maxCodes=Math.max(1,...store.all().map(i=>(i.codes||[]).length));
+  const head=["רחוב","מספר","כניסה","עיר",...Array.from({length:maxCodes},(_, i)=>"קוד "+(i+1)),"קומה","דירה","שם","טלפון","להשאיר ליד הדלת","הערות"];
+  const q=v=>{ v=String(v??""); return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v; };
+  const dz=k=>k==="yes"?"כן":k==="no"?"לא":"";
+  const lines=[head.map(q).join(",")];
+  sorted(store.all()).forEach(it=>{
+    const codes=(it.codes||[]).map(c=>(c.label&&c.label!=="קוד"?c.label+" ":"")+c.value);
+    const bcols=[it.street,it.num,it.entrance,it.city,...Array.from({length:maxCodes},(_, i)=>codes[i]||"")];
+    if(!it.residents.length) lines.push([...bcols,"","","","",dz(it.door),it.notes].map(q).join(","));
+    else sortRes(it.residents).forEach(r=>lines.push([...bcols,r.floor,r.apt,r.name,r.phone,dz(effDoor(r,it).k),r.notes].map(q).join(",")));
+  });
+  saveFile("בנק-קודים.csv", "﻿"+lines.join("\n"), "text/csv");
+}
+function exportJson(){ saveFile("בנק-קודים-גיבוי.json", JSON.stringify(store.all(),null,1), "application/json"); }
+
+/* ---------- today: storage ---------- */
+function dayKey(d){ d=d||new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+function dayStart(){ const d=new Date(); d.setHours(0,0,0,0); return d.getTime(); }
+const today = {
+  key:dayKey(), stops:[], doc:null,
+  lsKey(){ return "bank_codes_day_"+this.key; },
+  loadLocal(){ try{ const v=JSON.parse(localStorage.getItem(this.lsKey())||"null"); if(v&&Array.isArray(v.stops)) this.stops=v.stops; }catch(e){} },
+  attach(db, uid){
+    this.doc=db.doc("data/users/"+uid+"/app/days/"+this.key);
+    this.doc.onSnapshot(s=>{
+      const v=s.exists?s.data():null;
+      this.stops = v && Array.isArray(v.stops) ? v.stops.slice() : (this._pendingLocal ? this.stops : []);
+      this._pendingLocal=false;
+      try{ localStorage.setItem(this.lsKey(), JSON.stringify({stops:this.stops})); }catch(e){}
+      if(S.openId) refreshCard(); else if(S.stopOpen){ render(); refreshStop(); } else if(S.view==="today" && !S.intake) render();
+    }, ()=>{ this.doc=null; });
+  },
+  save(){
+    try{ localStorage.setItem(this.lsKey(), JSON.stringify({stops:this.stops})); }catch(e){}
+    if(this.doc){ const body={date:this.key, stops:JSON.parse(JSON.stringify(this.stops))}; return store.write("__day", ()=>this.doc.set(body)); }
+  }
+};
+
+/* ---------- today: stop status ---------- */
+const DONE_ACTS = {door:1, hand:1, neighbor:1, returned:1};
+function stopInfo(st){
+  const s=st.s||{};
+  const b=st.bid?store.get(st.bid):null;
+  const r=b&&st.rid?b.residents.find(x=>x.id===st.rid):null;
+  const codes=b&&b.codes.length?b.codes:(s.code?[{label:"קוד",value:s.code}]:[]);
+  let door = (s.door==="yes"||s.door==="no") ? s.door : (r&&r.door!=="ask") ? r.door : (b&&b.door!=="ask") ? b.door : "ask";
+  const name=s.name||(r&&r.name)||"", phone=s.phone||(r&&r.phone)||"";
+  const floor=s.floor||(r&&r.floor)||"", apt=s.apt||(r&&r.apt)||"";
+  const street=b?b.street:s.street, num=b?b.num:s.num, entrance=b?b.entrance:(s.entrance||""), city=b?b.city:s.city;
+  const reasons=[];
+  if(!codes.length) reasons.push("אין קוד");
+  const last=st.status||null;
+  const done=!!(last && DONE_ACTS[last.a]);
+  return {b, r, s, codes, door, name, phone, floor, apt, street, num, entrance, city, reasons, last, done, ready:!reasons.length, missing:!street};
+}
+const stopAddr = inf => [inf.street, inf.num].filter(Boolean).join(" ") + (inf.entrance?" · כניסה "+inf.entrance:"");
+function curStopObj(){ return S.curStop ? today.stops.find(s=>s.id===S.curStop) : null; }
+function stopBar(){ return ""; }
+function nextStopAfter(st){
+  const i=today.stops.indexOf(st);
+  for(let k=i+1;k<today.stops.length;k++){ const x=today.stops[k]; if(!stopInfo(x).done) return x; }
+  for(let k=0;k<i;k++){ const x=today.stops[k]; if(!stopInfo(x).done) return x; }
+  return null;
+}
+function nextStopBtn(){ return ""; }
+
+/* ---------- today: view ---------- */
+const FILTERS=[["left","נותרו"],["call","חסר קוד"],["ready","יש קוד"],["done","בוצעו"],["all","הכל"]];
+function viewToday(){
+  if(S.intake) return viewIntake();
+  const d=new Date();
+  const infos=today.stops.map(st=>({st, inf:stopInfo(st)}));
+  const done=infos.filter(x=>x.inf.done).length;
+  const toCall=infos.filter(x=>!x.inf.done && !x.inf.ready).length;
+  let html=`<div class="today-head"><h2>היום · ${d.getDate()}.${d.getMonth()+1}</h2>
+    <div class="stats"><span><b>${today.stops.length}</b>עצירות</span><span><b>${done}</b>בוצעו</span><span><b>${toCall}</b>חסר קוד</span></div></div>`;
+  if(!today.stops.length){
+    return html+`<div class="empty"><h2>אין עדיין משלוחים להיום</h2><p>צלם את המסך של כל משלוח או את דף המניפסט. האפליקציה תמצא קודים שמורים ותקרא אישורי השארה מההערות.</p>
+      <button class="btn primary" data-act="intake">הוסף משלוחים</button></div>`;
+  }
+  html+=`<div class="filters" role="group" aria-label="סינון">${FILTERS.map(([k,t])=>`<button data-filter="${k}" aria-pressed="${S.filter===k}">${t}</button>`).join("")}</div>`;
+  const shown=infos.map((x,i)=>Object.assign(x,{i})).filter(({inf})=>{
+    if(S.filter==="left") return !inf.done;
+    if(S.filter==="call") return !inf.done && !inf.ready;
+    if(S.filter==="ready") return !inf.done && inf.ready;
+    if(S.filter==="done") return inf.done;
+    return true; });
+  if(!shown.length) html+=`<div class="empty"><p>${S.filter==="call"?"לכל הבניינים יש קוד.":S.filter==="done"?"עוד לא סומנו מסירות היום.":"אין עצירות ברשימה הזו."}</p></div>`;
+  shown.forEach(({st,inf,i})=>{
+    const d=DOOR[inf.door]; const loc=resLoc(inf); const code=(inf.codes[0]||{}).value;
+    html+=`<div class="stop ${inf.done?"done":""}" data-stop="${esc(st.id)}" role="button" tabindex="0">
+      <span class="n">${i+1}</span>
+      <div class="main">
+        <span class="t1">${esc(stopAddr(inf)||"ללא כתובת")}${loc?` · ${esc(loc)}`:""}</span>
+        <span class="t2">${esc([inf.name, inf.city].filter(Boolean).join(" · "))}</span>
+        <span class="chips">
+          ${inf.last?`<span class="chip ${inf.done?"done":"warn"}">${inf.done?"✓ ":""}${esc(ACTIONS[inf.last.a])}</span>`:""}
+          ${!inf.done?`<span class="chip ${d.c}">${esc(d.short)}</span>`:""}
+          ${!inf.done&&!code?`<span class="chip warn">אין קוד</span>`:""}
+          ${st.pickup?`<span class="chip ask">איסוף</span>`:""}
+          ${st.packages&&+st.packages>1?`<span class="chip ask">${esc(st.packages)} אריזות</span>`:""}
+        </span>
+      </div>
+      <div class="side">${code?`<span class="cm">${esc(code)}</span>`:""}${inf.phone&&!inf.done&&!inf.ready?`<a class="btn small" href="tel:${esc(inf.phone.replace(/[^\d+]/g,""))}">חייג</a>`:""}</div>
+    </div>`;
+  });
+  html+=`<div class="btn-row"><button class="btn" data-act="intake">+ הוסף משלוחים</button><button class="btn danger small" data-act="clearDay">נקה את היום</button></div>`;
+  return html;
+}
+
+/* ---------- today: stop sheet ---------- */
+function openStop(id){ const st=today.stops.find(s=>s.id===id); if(!st) return; S.stopOpen=id; S.openId=null; refreshStop(); const sh=$("#sheet"); sh.hidden=false; sh.scrollTop=0; }
+function refreshStop(){
+  const st=today.stops.find(s=>s.id===S.stopOpen); const sh=$("#sheet");
+  if(!st){ closeSheet(); return; }
+  const inf=stopInfo(st); const i=today.stops.indexOf(st); const d=DOOR[inf.door]; const loc=resLoc(inf);
+  const nx=nextStopAfter(st); const ni=nx?stopInfo(nx):null;
+  sh.innerHTML=`<div class="sheet-top"><button class="icon-btn" data-act="close" aria-label="חזרה">${backIcon}</button>
+    <h2>${esc(stopAddr(inf)||"ללא כתובת")}</h2>${inf.b?`<button class="icon-btn" data-act="editStopBuilding" aria-label="עריכת בניין">${editIcon}</button>`:""}</div>
+  <div class="sheet-body">
+    <div class="stopbar"><span>עצירה ${i+1} מתוך ${today.stops.length}</span><span>${esc([st.shipment?"משלוח "+st.shipment:null, st.packages?st.packages+" אריזות":null].filter(Boolean).join(" · "))}</span></div>
+    ${inf.codes.length?`<div class="codes">${inf.codes.map(c=>`<button class="code" data-copy="${esc(c.value)}"><span class="lbl">${esc(c.label||"קוד")}</span><span class="val">${esc(c.value)}</span><span class="hint">הקש להעתקה</span></button>`).join("")}</div>
+      ${!inf.b?`<div class="meta">הקוד מהמניפסט. <button class="btn small" data-act="stopSaveCode">שמור לבניין</button></div>`:""}`
+      :`<div class="block"><h3>קוד</h3><div class="meta">אין קוד שמור לבניין הזה.</div><button class="btn small primary" data-act="stopAddCode">הוסף קוד לבניין</button></div>`}
+    <div class="door ${d.c}"><div>${esc(d.t)}<small>${inf.s.door==="yes"?"לפי ההערה במשלוח":inf.door==="ask"?"אין אישור בהערות — צריך לבדוק עם הלקוח":"לפי מה שנשמר"}</small></div></div>
+    <div class="block"><h3>לקוח</h3>
+      ${loc?`<div class="res-loc">${esc(loc)}</div>`:`<div class="meta">אין קומה ודירה במשלוח.</div>`}
+      ${inf.name?`<div><b>${esc(inf.name)}</b>${inf.city?` · <span class="meta">${esc(inf.city)}</span>`:""}</div>`:""}
+      ${inf.phone?`<div class="phone">${esc(inf.phone)}</div><div class="btn-row"><a class="btn small" href="tel:${esc(inf.phone.replace(/[^\d+]/g,""))}">חייג</a><button class="btn small" data-copy="${esc(inf.phone)}">העתק מספר</button></div>`:""}
+      ${inf.s.notes?`<div class="res-note">${esc(inf.s.notes)}</div>`:""}
+    </div>
+    ${inf.b&&inf.b.notes?`<div class="block"><h3>על הבניין</h3><div class="notes">${esc(inf.b.notes)}</div></div>`:""}
+    <div class="block"><h3>תוצאה</h3>
+      <div class="log-grid"><button class="btn" data-slog="door">הושאר ליד הדלת</button><button class="btn" data-slog="hand">נמסר ביד</button><button class="btn" data-slog="neighbor">אצל שכן</button><button class="btn" data-slog="noanswer">לא ענה</button></div>
+      ${inf.last?`<div class="meta">סומן: ${esc(ACTIONS[inf.last.a])}, ${fmtTime(inf.last.t)}</div>`:""}
+    </div>
+    ${nx?`<button class="btn primary block next" data-act="goStop" data-stop="${esc(nx.id)}"><span>לעצירה הבאה ←</span><small>${esc([stopAddr(ni), resLoc(ni), ni.name].filter(Boolean).join(" · "))}</small></button>`
+      :`<button class="btn block" data-act="backToday">כל העצירות טופלו · חזרה להיום</button>`}
+  </div>`;
+}
+function logStop(a){
+  const st=today.stops.find(s=>s.id===S.stopOpen); if(!st) return;
+  st.status={a, t:Date.now()};
+  today.save();
+  toast("נרשם: "+ACTIONS[a]);
+  if(DONE_ACTS[a]){ const nx=nextStopAfter(st); if(nx){ openStop(nx.id); return; } }
+  refreshStop();
+}
+async function stopSaveCode(){
+  const st=today.stops.find(s=>s.id===S.stopOpen); if(!st||!st.s||!st.s.code) return;
+  const s=st.s; const b=findBuilding(s);
+  let it;
+  if(b){ it=JSON.parse(JSON.stringify(b)); if(!it.codes.some(c=>c.value===s.code)) it.codes.push({label:"קוד",value:s.code}); }
+  else it=normalize({id:newId(), street:s.street, num:s.num, entrance:s.entrance, city:s.city, codes:[{label:"קוד",value:s.code}]});
+  st.bid=it.id; today.save(); await store.save(it); refreshStop(); toast("הקוד נשמר לבניין");
+}
+
+/* ---------- today: intake ---------- */
+async function initAI(){
+  try{ const s=await window.claude.use("sample"); if(!s) return; S.ai=s;
+    const lim=await s.limits().catch(()=>null); S.aiImages=!!(lim&&lim.images); S.aiLimits=lim;
+    if(S.view==="today" && S.intake && !S.intake.rows) render();
+  }catch(e){}
+}
+function viewIntake(){
+  const I=S.intake;
+  if(I.rows) return viewReview();
+  const imgOk=S.aiImages;
+  return `<div class="today-head"><h2>הוספת משלוחים</h2><button class="btn small" data-act="cancelIntake">ביטול</button></div>
+  <div class="block"><h3>תמונות</h3>
+    ${imgOk?`<p class="help">צילום של דף המניפסט או צילומי מסך של משלוחים מהאפליקציה. אפשר כמה ביחד, לפי סדר המסלול.</p>
+      <label class="btn primary block" for="inFiles" style="cursor:pointer">צלם או בחר תמונות</label>
+      <input type="file" id="inFiles" accept="${esc((S.aiLimits.images.mediaTypes||["image/*"]).join(","))}" multiple hidden>
+      <div class="meta" id="inFilesMeta">${I.files&&I.files.length?I.files.length+" תמונות נבחרו":"לא נבחרו תמונות"}</div>`
+    :`<p class="help">קריאת תמונות לא זמינה בחלון הזה. אפשר להדביק טקסט למטה.</p>`}
+  </div>
+  <div class="block"><h3>או הדבק טקסט</h3>
+    <textarea class="inp" id="inText" placeholder="ישראל ישראלי טל:0500000000 רח:הדוגמה 1, מודיעין">${esc(I.text||"")}</textarea></div>
+  ${I.busy?`<div class="banner"><div><b>${esc(I.busy)}</b></div><div class="progress"><i style="width:${I.pct||5}%"></i></div></div>`:""}
+  ${I.err?`<div class="banner"><div>${esc(I.err)}</div></div>`:""}
+  <button class="btn primary block" data-act="readIntake" ${I.busy?"disabled":""}>קרא משלוחים</button>`;
+}
+const normPhone = p => { let d=String(p||"").replace(/\D/g,""); if(d.startsWith("972")) d="0"+d.slice(3); return d; };
+const normNum = n => String(n||"").replace(/\s/g,"").toLowerCase();
+const normStreet = s => norm(s).replace(/^(רח|רחוב|שד|שדרות|דרך)\s+/,"");
+function cleanNote(t){ return String(t||"").replace(/טל[:：]?\s*[\d\-+ ]{9,}/g," ").replace(/(?:\+972|0)5\d[-\s]?\d{3}[-\s]?\d{4}/g," ").replace(/^[\s:,.-]+|[\s:,.-]+$/g,"").replace(/\s+/g," ").trim(); }
+function splitAddr(a){
+  const m=String(a||"").trim().match(/^(.*?)\s+(\d{1,4}[א-ת]?)(?:\s*\/\s*(\d{1,4}))?\s*$/);
+  return m ? {street:m[1].trim(), num:m[2], apt:m[3]||""} : {street:String(a||"").trim(), num:"", apt:""};
+}
+function infoFromNotes(t){
+  t=String(t||"");
+  const o={};
+  const fl=t.match(/קומה\s*[:：]?\s*(-?\d{1,2})/); if(fl) o.floor=fl[1];
+  const ap=t.match(/דירה\s*[:：]?\s*(\d{1,4})/); if(ap) o.apt=ap[1];
+  const cd=t.match(/קוד[^\d*#\n]{0,20}?([*#]?\d[\d*#]{2,7})/); if(cd) o.code=cd[1];
+  if(/ליד\s*הדלת\s*באישור|מסירה\s*ליד\s*הדלת/.test(t)) o.door="yes";
+  return o;
+}
+function parseChitaText(text){
+  let t=String(text).replace(/\r/g,"");
+  const out=[];
+  const blocks=/מזמין/.test(t) ? t.split(/(?=^[^\n]*מזמין)/m) : t.split(/(?=משלוח\s*:)/);
+  blocks.forEach(blk=>{
+    const dest=blk.replace(/מקור\s*:?[\s\S]*?(?=יעד\s*:|$)/g,"\n");
+    const m=dest.match(/([^\n:]*?)\s*טל\s*[:：]\s*([\d\-+ ]{9,15})\s*רח\s*[:：]\s*([^\n,]+?)\s*(?:,\s*([^\n]+))?\s*$/m);
+    if(!m) return;
+    const ship=(blk.match(/משלוח\s*:\s*(\d{6,})/)||[])[1]||"";
+    const pk=(blk.match(/אריזות[^\n:]*:\s*(\d+)/)||[])[1]||"";
+    const note=(dest.match(/הערות\s*יעד\s*:([^\n]*)/)||[])[1]||"";
+    const courier=(blk.match(/הערה\s*לשליח\s*:([^\n]*(?:\n(?!משלוח|יעד|מקור)[^\n]*)*)/)||[])[1]||"";
+    const a=splitAddr(m[3]);
+    const x=Object.assign({}, infoFromNotes(note), infoFromNotes(courier), infoFromNotes(blk.match(/מסירה\s*לאחר[^\n]*/)?.[0]));
+    out.push({shipment:ship, name:m[1].replace(/^[\s:,.-]+/,"").trim(), phone:m[2].replace(/\D/g,""), street:a.street, num:a.num, entrance:"",
+      floor:x.floor||"", apt:x.apt||a.apt, city:(m[4]||"").replace(/קומה.*$/,"").trim(), packages:pk, code:x.code||"", door:x.door||"", pickup:false,
+      notes:cleanNote([courier,note].filter(Boolean).join(" · "))});
+  });
+  return out;
+}
+const AI_PROMPT=`These images come from an Israeli parcel courier's daily work: either photos of a printed delivery manifest, or screenshots of single deliveries from the courier's driver app. Text is Hebrew.
+Extract every delivery STOP, in the order they appear (top to bottom, image after image).
+Each delivery screen has: the ordering company at the top (ignore it and its phone numbers); sometimes a yellow box with "מסירה לאחר:" and "הערה לשליח:" (courier instructions — IMPORTANT, read it fully); "משלוח:" with the shipment number; a destination section "יעד" and a sender section "מקור".
+The customer is the "יעד" party. EXCEPTION: when the grey label says "הובלה איסוף" (a pickup), the customer is the "מקור" party — set pickup to true.
+Reply with only a JSON array. One object per stop with these fields (strings; use "" when missing or unreadable — never guess or invent):
+shipment, name (customer), phone (digits only), street, num (building number only), entrance, floor, apt, city, packages (count after "אריזות הלוך"),
+code (building entry code, e.g. from "קוד כניסה לבניין: 0159" or "מפתח 2301"; digits plus any * or # only),
+door ("yes" if the yellow box says "מסירה ליד הדלת באישור הנמען" or the customer clearly allows leaving at the door; "no" if it says hand delivery only; otherwise ""),
+pickup (true/false),
+notes (short Hebrew instructions for the courier from "הערה לשליח" and "הערות יעד", without repeating floor/apt/code/phone; e.g. "יש מעלית", "להשאיר בקבלה בקומה 40").
+Floor and apartment often appear glued to the address or city, e.g. "רמת גןקומה: 2דירה: 6" → city "רמת גן", floor "2", apt "6". If the yellow box and the address disagree on the building, prefer the yellow box and mention it in notes.
+Example: [{"shipment":"103108878","name":"Israel Israeli","phone":"0500000000","street":"חיבת ציון","num":"6","entrance":"","floor":"2","apt":"2","city":"רמת גן","packages":"1","code":"0159","door":"yes","pickup":false,"notes":"יש מעלית"}]`;
+function cleanAI(arr){
+  if(!Array.isArray(arr)) return [];
+  const f=v=>String(v==null?"":v).trim();
+  return arr.filter(x=>x&&typeof x==="object").map(x=>{ let street=f(x.street), num=f(x.num);
+    if(street && !num){ const a=splitAddr(street); street=a.street; num=a.num; }
+    const door=f(x.door).toLowerCase();
+    return {shipment:f(x.shipment), name:f(x.name), phone:f(x.phone).replace(/\D/g,""), street, num, entrance:f(x.entrance), floor:f(x.floor), apt:f(x.apt),
+      city:f(x.city).replace(/קומה.*$/,"").trim(), packages:f(x.packages), code:f(x.code).replace(/[^\d*#]/g,""), door:door==="yes"||door==="no"?door:"", pickup:x.pickup===true||x.pickup==="true",
+      notes:cleanNote(x.notes)}; });
+}
+async function readIntake(){
+  const I=S.intake; const text=($("#inText")||{}).value||""; I.text=text;
+  const files=I.files||[];
+  if(!text.trim() && !files.length){ I.err="צלם תמונה או הדבק טקסט."; render(); return; }
+  I.err=null; let stops=[];
+  try{
+    if(text.trim()){
+      const local=parseChitaText(text);
+      if(local.length) stops=stops.concat(local);
+      else if(S.ai){ I.busy="קורא את הטקסט…"; I.pct=20; render();
+        stops=stops.concat(cleanAI(await S.ai.json(AI_PROMPT.replace("These images come from","This text comes from")+"\n\nTEXT:\n"+text, {modelTier:"default"}))); }
+    }
+    if(files.length){
+      const per=Math.max(1, Math.min(6, (S.aiLimits&&S.aiLimits.images&&S.aiLimits.images.maxCount)||4));
+      for(let i=0;i<files.length;i+=per){
+        const batch=files.slice(i,i+per);
+        I.busy=`קורא תמונות ${i+1}–${Math.min(i+per,files.length)} מתוך ${files.length}…`; I.pct=Math.round(i/files.length*90)+5; render();
+        stops=stops.concat(cleanAI(await S.ai.json(AI_PROMPT, {images:batch, modelTier:"default"})));
+      }
+    }
+  }catch(e){
+    I.busy=null;
+    I.err = e&&e.code==="not_granted" ? "צריך לאשר לאפליקציה להשתמש ב־AI כדי לקרוא תמונות." :
+            e&&e.code==="rate_limited" ? "יותר מדי בקשות. חכה דקה ונסה שוב." :
+            e&&e.code==="image_rejected" ? "אחת התמונות לא נקראה. נסה תמונה אחרת או פחות תמונות בבת אחת." :
+            e&&e.code==="invalid_json" ? "לא הצלחתי לקרוא את המשלוחים מהתמונה. נסה צילום חד יותר." : "הקריאה נכשלה. נסה שוב.";
+    render(); return;
+  }
+  I.busy=null;
+  if(!stops.length){ I.err="לא נמצאו משלוחים. ודא שרואים בתמונה את השם והכתובת."; render(); return; }
+  I.rows=stops.map(s=>({s, keep:true}));
+  render();
+}
+function streetEq(a,b){ a=normStreet(a); b=normStreet(b); if(!a||!b) return false; if(a===b || a.replace(/^ה/,"")===b.replace(/^ה/,"")) return true;
+  const short=a.length<b.length?a:b, long=a.length<b.length?b:a; return short.length>=3 && (" "+long+" ").includes(" "+short+" "); }
+function findBuilding(s){
+  if(!s.street) return null;
+  const cands=store.all().filter(b=>streetEq(b.street,s.street) && normNum(b.num)===normNum(s.num) && (!s.entrance||!b.entrance||norm(b.entrance)===norm(s.entrance)));
+  return cands.find(x=>s.city&&x.city&&norm(x.city)===norm(s.city)) || cands.find(x=>!x.city||!s.city) || null;
+}
+function matchStop(s){
+  if(!s.street) return {type:"bad"};
+  const b=findBuilding(s);
+  let r=null;
+  if(b){ const ph=normPhone(s.phone);
+    if(ph.length>=9) r=b.residents.find(x=>normPhone(x.phone)===ph)||null;
+    if(!r && s.apt) r=b.residents.find(x=>normNum(x.apt)===normNum(s.apt) && (!s.floor||!x.floor||x.floor===s.floor))||null; }
+  if(b && b.codes.length) return {type:"saved", b, r};
+  if(s.code) return {type:"manifest", b, r};
+  return {type:"nocode", b, r};
+}
+const MT={saved:["קוד שמור","yes"], manifest:["קוד חדש מהמניפסט","new"], nocode:["אין קוד","warn"], bad:["חסרה כתובת","warn"]};
+function viewReview(){
+  const I=S.intake;
+  const rows=I.rows.map((row,i)=>Object.assign(row,{m:matchStop(row.s), i}));
+  const kept=rows.filter(r=>r.keep);
+  const c={saved:0,manifest:0,nocode:0,bad:0}; kept.forEach(r=>c[r.m.type]++);
+  const appr=kept.filter(r=>r.s.door==="yes").length;
+  return `<div class="today-head"><h2>בדיקה</h2><button class="btn small" data-act="backIntake">חזרה</button></div>
+  <div class="meta">${kept.length} משלוחים · ${c.saved} עם קוד שמור · ${c.manifest} קודים חדשים מהמניפסט · <b>${c.nocode} חסר קוד</b>${c.bad?` · <b style="color:var(--no)">${c.bad} בלי כתובת — השלם או הסר</b>`:""}</div>
+  ${rows.map(({s,m,keep,i})=>{ const code=(m.b&&m.b.codes[0]&&m.b.codes[0].value)||s.code;
+    return `<div class="rv ${m.type==="bad"&&keep?"bad":""}" ${keep?"":`style="opacity:.45"`}>
+    <span class="n">${i+1}</span>
+    <div class="main"><span style="font-weight:700;font-size:1.05rem">${esc([s.street,s.num].filter(Boolean).join(" ")||"—")}${s.floor||s.apt?" · "+esc(resLoc(s)):""}</span>
+      <span class="meta">${esc([s.name, s.city, s.phone].filter(Boolean).join(" · "))}</span>
+      ${s.notes?`<span class="meta">${esc(s.notes)}</span>`:""}
+      <span class="chips" style="display:flex;gap:5px;flex-wrap:wrap;align-items:center"><span class="chip ${MT[m.type][1]}">${MT[m.type][0]}</span>${code?`<span class="cm" style="font-family:var(--f-code);direction:ltr">${esc(code)}</span>`:""}${s.door==="yes"?`<span class="chip yes">ליד הדלת</span>`:s.door==="no"?`<span class="chip no">רק ביד</span>`:""}${s.pickup?`<span class="chip ask">איסוף</span>`:""}</span>
+      ${m.type==="bad"&&keep?`<div class="fix"><input class="inp" id="fx_s_${i}" placeholder="רחוב"><input class="inp" id="fx_n_${i}" placeholder="מספר" inputmode="numeric"></div><button class="btn small" data-act="fixRow" data-i="${i}">עדכן כתובת</button>`:""}
+    </div>
+    <button class="icon-btn" data-act="toggleRow" data-i="${i}" aria-label="${keep?"הסר":"החזר"}">${keep?"×":"↺"}</button></div>`; }).join("")}
+  <button class="btn primary block" data-act="confirmIntake" ${!kept.length||c.bad?"disabled":""}>הוסף ${kept.length} עצירות להיום</button>`;
+}
+async function confirmIntake(){
+  const I=S.intake; const toSave=new Map(); let added=0, newCodes=0;
+  I.rows.filter(r=>r.keep).forEach(({s})=>{
+    const m=matchStop(s); if(m.type==="bad") return;
+    let b=m.b ? (toSave.get(m.b.id)||m.b) : null;
+    if(s.code){
+      if(!b){ const pend=[...toSave.values()].find(x=>!store.get(x.id) && streetEq(x.street,s.street) && normNum(x.num)===normNum(s.num));
+        b = pend || normalize({id:newId(), street:s.street, num:s.num, entrance:s.entrance, city:s.city}); }
+      if(!b.codes.some(c=>c.value===s.code)){ b=JSON.parse(JSON.stringify(b)); b.codes.push({label:"קוד",value:s.code}); toSave.set(b.id,b); newCodes++; }
+    }
+    const ph=normPhone(s.phone);
+    const ex=today.stops.find(x=>x.s && ((ph && normPhone(x.s.phone)===ph) || (streetEq(x.s.street,s.street) && normNum(x.s.num)===normNum(s.num) && x.s.apt && x.s.apt===s.apt)));
+    if(ex){ if(s.shipment && !String(ex.shipment||"").includes(s.shipment)) ex.shipment=[ex.shipment,s.shipment].filter(Boolean).join(", ");
+      ex.packages=String((+ex.packages||0)+(+s.packages||0)||""); if(!ex.bid && b) ex.bid=b.id; return; }
+    today.stops.push({id:newId(), bid:b?b.id:null, rid:m.r?m.r.id:null, s, shipment:s.shipment, packages:s.packages, pickup:!!s.pickup});
+    added++;
+  });
+  today._pendingLocal=true;
+  const pend=[...toSave.values()].map(b=>store.save(b));
+  pend.push(today.save());
+  S.intake=null; S.filter="left"; render();
+  toast(`נוספו ${added} עצירות${newCodes?` · ${newCodes} קודים חדשים נשמרו`:""}`);
+  await Promise.all(pend);
+}
+
+/* ---------- events ---------- */
+document.querySelector("nav.bottom").addEventListener("click", e=>{
+  const b=e.target.closest("button[data-view]"); if(!b) return;
+  if(!$("#sheet").hidden){ $("#sheet").hidden=true; S.openId=null; S.openRes=null; S.stopOpen=null; S.linkStop=null; }
+  if(b.dataset.view==="add"){ openForm(null, S.q?parseQueryPreset(S.q):null); return; }
+  S.view=b.dataset.view; render(); window.scrollTo(0,0);
+  if(S.view==="near" && !S.pos && !S.posErr) locate();
+});
+function parseQueryPreset(q){ const p=parseLine(q); return {street:p.street||q.replace(/\d.*$/,"").trim(), num:p.num}; }
+let qTimer;
+$("#q").addEventListener("input", e=>{ S.q=e.target.value; $("#qClear").hidden=!S.q; clearTimeout(qTimer); qTimer=setTimeout(render,80); });
+$("#qClear").addEventListener("click", ()=>{ S.q=""; $("#q").value=""; $("#qClear").hidden=true; render(); $("#q").focus(); });
+
+let armed=null;
+function arm(a, label, fn){
+  if(armed!==a){ armed=a; const orig=a.textContent; a.classList.add("armed"); a.textContent=label;
+    setTimeout(()=>{ if(armed===a){ armed=null; if(a.isConnected){ a.classList.remove("armed"); a.textContent=orig; } } },3500); return; }
+  armed=null; fn();
+}
+document.addEventListener("click", e=>{
+  const sp=e.target.closest("[data-stop]");
+  if(sp && !sp.dataset.act && !e.target.closest("a")){ openStop(sp.dataset.stop); return; }
+  const fl=e.target.closest("[data-filter]"); if(fl){ S.filter=fl.dataset.filter; render(); return; }
+  const cb=e.target.closest("[data-city]"); if(cb){ S.city=cb.dataset.city; try{ localStorage.setItem("bank_codes_city",S.city); }catch(err){} render(); return; }
+  const open=e.target.closest("[data-open]"); if(open){ openCard(open.dataset.open, open.dataset.rid); return; }
+  const tg=e.target.closest("[data-toggle]"); if(tg){ S.openRes = S.openRes===tg.dataset.toggle ? null : tg.dataset.toggle; const it=findItem(S.openId); if(it) $("#resList").innerHTML=resListHtml(it); return; }
+  const cp=e.target.closest("[data-copy]"); if(cp){ copy(cp.dataset.copy); return; }
+  const sl=e.target.closest("[data-slog]"); if(sl){ logStop(sl.dataset.slog); return; }
+  const lg=e.target.closest("[data-log]"); if(lg){ logAction(lg.dataset.log, lg.dataset.rid||""); return; }
+  const go=e.target.closest("[data-go]"); if(go){ if(go.dataset.go==="add") openForm(null); else { S.view=go.dataset.go; render(); } return; }
+  const a=e.target.closest("[data-act]"); if(!a) return;
+  const act=a.dataset.act;
+  if(act.startsWith("news")){ newsAct(act,a); return; }
+  if(act.startsWith("day")){ dayAct(act,a); return; }
+  if(act==="intake"){ S.intake={files:[]}; render(); window.scrollTo(0,0); }
+  else if(act==="cancelIntake"){ S.intake=null; render(); }
+  else if(act==="readIntake") readIntake();
+  else if(act==="backIntake"){ S.intake.rows=null; render(); }
+  else if(act==="toggleRow"){ const r=S.intake.rows[+a.dataset.i]; r.keep=!r.keep; render(); }
+  else if(act==="fixRow"){ const i=+a.dataset.i; const st=$("#fx_s_"+i).value.trim(), nm=$("#fx_n_"+i).value.trim();
+    if(!st){ toast("הקלד רחוב."); return; } const s=S.intake.rows[i].s; s.street=st; s.num=nm; render(); }
+  else if(act==="confirmIntake") confirmIntake();
+  else if(act==="clearDay") arm(a,`לחץ שוב כדי לנקות ${today.stops.length} עצירות`,()=>{ today.stops=[]; today.save(); render(); toast("היום נוקה. הדיירים וההיסטוריה נשארו שמורים."); });
+  else if(act==="goStop") openStop(a.dataset.stop);
+  else if(act==="signUp") doAuth("up");
+  else if(act==="signOut") signOut();
+  else if(act==="geocodeAll") geocodeAll();
+  else if(act==="wipeResidents") arm(a,"לחץ שוב כדי למחוק",async()=>{ const list=store.all().filter(i=>(i.residents||[]).length).map(i=>Object.assign({},i,{residents:[]})); await store.bulk(list,()=>{}); render(); toast(`נמחקו פרטי לקוחות מ־${list.length} בניינים`); });
+  else if(act==="mapFollow") toggleFollow();
+  else if(act==="mapShowAll"){ M.showAll=!M.showAll; mapUpdate(); }
+  else if(act==="mapFix"){ if(S.fixMode) endFix(); else { S.fixMode=true; const f=fixList()[0]; if(f) startFix(f.id); else { S.fixMode=false; toast("לכל הבניינים יש מיקום מדויק."); } mapUpdate(); } }
+  else if(act==="fixSave") saveFix();
+  else if(act==="fixSkip") nextFix(M.fixId);
+  else if(act==="fixPick") startFix(a.dataset.id);
+  else if(act==="stopSaveCode") stopSaveCode();
+  else if(act==="stopAddCode"){ const st=today.stops.find(x=>x.id===S.stopOpen); if(!st) return; const inf=stopInfo(st); const keep=st.id; openForm(null,{street:inf.street,num:inf.num,entrance:inf.entrance,city:inf.city}); S.linkStop=keep; }
+  else if(act==="editStopBuilding"){ const st=today.stops.find(x=>x.id===S.stopOpen); if(!st||!st.bid) return; const keep=st.id; openForm(st.bid); S.linkStop=keep; }
+  else if(act==="assignCity") assignCity(a.dataset.name || ($("#newCity")||{}).value);
+  else if(act==="backToday"){ closeSheet(); S.view="today"; render(); }
+  else if(act==="close") closeSheet();
+  else if(act==="edit") openForm(S.openId);
+  else if(act==="backToCard"){ a.dataset.id ? openCard(a.dataset.id, a.dataset.rid||null) : closeSheet(); }
+  else if(act==="addRes") openResForm(S.openId, null);
+  else if(act==="editRes") openResForm(S.openId, a.dataset.rid);
+  else if(act==="addCode"){ $("#codeRows").insertAdjacentHTML("beforeend", codeRow({label:"קוד",value:""})); const ins=$("#codeRows").querySelectorAll(".code-inp"); ins[ins.length-1].focus(); }
+  else if(act==="rmCode") a.closest(".code-row").remove();
+  else if(act==="delete") arm(a,"לחץ שוב כדי למחוק את הבניין",()=>{ store.remove($("#form").dataset.id); closeSheet(); toast("הבניין נמחק"); });
+  else if(act==="deleteRes") arm(a,"לחץ שוב כדי למחוק",()=>{ const f=$("#form"); const b=findItem(f.dataset.bid);
+    store.save(Object.assign({}, b, {residents:b.residents.filter(r=>r.id!==f.dataset.rid)})); openCard(b.id); toast("הדייר נמחק"); });
+  else if(act==="pinHere") pinHere();
+  else if(act==="locate") locate();
+  else if(act==="toggleDrive") S.drive?stopDrive():startDrive();
+  else if(act==="hideDemo"){ S.demoDismissed=true; try{ localStorage.setItem("bank_codes_demo_off","1"); }catch(e){} render(); }
+  else if(act==="addFromQuery") openForm(null, parseQueryPreset(S.q));
+  else if(act==="parseImport") buildPlan();
+  else if(act==="runImport") runImport();
+  else if(act==="exportCsv") exportCsv();
+  else if(act==="exportJson") exportJson();
+  else if(act==="wipe") arm(a,`לחץ שוב כדי למחוק ${store.map.size} בניינים`,()=>{ [...store.map.keys()].forEach(id=>store.remove(id)); render(); toast("כל הנתונים נמחקו"); });
+});
+document.addEventListener("input", e=>{ if(e.target.id==="resQ"){ S.resQ=e.target.value; const it=findItem(S.openId); if(it) $("#resList").innerHTML=resListHtml(it); } });
+document.addEventListener("submit", e=>{ if(e.target.id==="authForm"){ e.preventDefault(); doAuth("in"); return; } if(e.target.id==="newsForm"){ e.preventDefault(); submitNews(e.target); return; } if(e.target.id!=="form") return; e.preventDefault(); e.target.dataset.kind==="resident"?submitResident(e.target):submitBuilding(e.target); });
+document.addEventListener("change", e=>{
+  if(e.target.id==="impFile"||e.target.id==="impText") S.importPlan=null;
+  if(e.target.id==="inFiles" && S.intake){ S.intake.files=[...e.target.files]; S.intake.text=($("#inText")||{}).value||""; const m=$("#inFilesMeta"); if(m) m.textContent=S.intake.files.length+" תמונות נבחרו"; }
+});
+document.addEventListener("keydown", e=>{
+  if(e.key==="Escape" && !$("#sheet").hidden) closeSheet();
+  if((e.key==="Enter"||e.key===" ") && e.target.matches && e.target.matches(".stop[data-stop]")){ e.preventDefault(); openStop(e.target.dataset.stop); }
+});
+document.addEventListener("visibilitychange", async ()=>{ if(document.visibilityState==="visible" && S.drive && !S.wake){ try{ if(navigator.wakeLock) S.wake=await navigator.wakeLock.request("screen"); }catch(e){} } });
+
+const dl=document.createElement("datalist"); dl.id="codeLabels";
+dl.innerHTML=["קוד","שער","לובי","דלת","חניה","מעלית"].map(x=>`<option value="${x}">`).join(""); document.body.appendChild(dl);
+
+store.start();
+})();
+</script>
+
+<script>
+if("serviceWorker" in navigator){ window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{})); }
+</script>
+</body>
+</html>
